@@ -53,6 +53,15 @@ export interface RegisterDriverDTO {
   profile_image_url?: string;
 }
 
+export interface RegisterAdminDTO {
+  name: string;
+  email: string;
+  password: string;
+  address: string;
+  role?: ROLES.ADMIN;
+  profile_image_url?: string;
+}
+
 export interface CustomerResponseDTO extends UserResponseDTO {
   address: string;
   profile_img_url?: string;

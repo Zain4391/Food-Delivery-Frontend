@@ -16,10 +16,13 @@ export interface UpdateCustomerDTO {
 }
 
 export interface UpdatePasswordDTO {
-  old_password: string;
-  new_password: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
 
 export interface ForgotPasswordDTO {
   email: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
