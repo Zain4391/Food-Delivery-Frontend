@@ -29,7 +29,7 @@ export const updateDriverPasswordSchema = z
 
 export const driverForgotPasswordSchema = z
   .object({
-    email: z.string().email("Invalid email address"),
+    email: z.email("Invalid email address"),
     newPassword: z.string().min(8, "Password must be at least 8 characters"),
     confirmNewPassword: z.string().min(1, "Please confirm your new password"),
   })
