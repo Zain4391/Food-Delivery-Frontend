@@ -28,6 +28,13 @@ export class AppException extends Error {
   }
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export function isAppException(error: unknown): error is AppException {
   return error instanceof AppException;
 }
