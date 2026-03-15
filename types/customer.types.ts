@@ -9,34 +9,17 @@ export interface Customer {
   updated_at: string;
 }
 
-export interface RegisterCustomerPayload {
-  name: string;
-  email: string;
-  password: string;
-  address: string;
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  access_token: string;
-  user: Customer;
-}
-
-export interface UpdateCustomerPayload {
+export interface UpdateCustomerDTO {
   name?: string;
   email?: string;
   address?: string;
 }
 
-export interface UpdatePasswordPayload {
+export interface UpdatePasswordDTO {
   old_password: string;
   new_password: string;
 }
 
-export interface ForgotPasswordPayload {
+export interface ForgotPasswordDTO {
   email: string;
 }

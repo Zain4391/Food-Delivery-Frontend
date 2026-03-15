@@ -29,7 +29,7 @@ export interface Order {
   updated_at: string;
 }
 
-export interface CreateOrderPayload {
+export interface CreateOrderDTO {
   customer_id: string;
   restaurant_id: string;
   delivery_address: string;
@@ -37,7 +37,7 @@ export interface CreateOrderPayload {
   items: { menu_item_id: string; quantity: number }[];
 }
 
-export interface OrderPaginationParams {
+export interface OrderPaginationDTO {
   page?: number;
   limit?: number;
 }
