@@ -11,3 +11,22 @@ export const REDIRECT_MAP: Record<UserType, string> = {
   driver: "/driver/dashboard",
   admin: "/admin/dashboard",
 };
+
+type RoleConfig = {
+  label: string;
+  register?: { href: string; label: string };
+};
+
+export const ROLE_CONFIG: Record<UserType, RoleConfig> = {
+  customer: {
+    label: "Customer",
+    register: { href: "/register/customer", label: "Create an account" },
+  },
+  driver: {
+    label: "Driver",
+    register: { href: "/register/driver", label: "Join as a driver" },
+  },
+  admin: {
+    label: "Admin",
+  },
+};
