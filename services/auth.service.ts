@@ -1,3 +1,10 @@
+/**
+ * FOR Future Reference. We can use this in the lib.auth.ts inside authorize callback.
+ * THIS FILE IS NOT BEING USED ANYWHERE AND IS JUST FOR LEARNING PURPOSES!
+ *
+ *
+ */
+
 import { apiClient } from "@/lib/axios";
 import {
   AuthResponseDTO,

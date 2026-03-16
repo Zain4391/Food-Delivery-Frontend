@@ -23,6 +23,7 @@ export const registerCustomerSchema = z
     path: ["confirmPassword"],
   });
 
+export const registerAdminSchema = registerCustomerSchema;
 export const registerDriverSchema = z
   .object({
     name: z.string().min(1, "Name is required"),
@@ -46,4 +47,5 @@ export const registerDriverSchema = z
 /* Export Types for FORMS */
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterCustomerFormValues = z.infer<typeof registerCustomerSchema>;
-export type registerDriverSchema = z.infer<typeof registerDriverSchema>;
+export type RegisterDriverFormValues = z.infer<typeof registerDriverSchema>;
+export type RegisterAdminFormValues = z.infer<typeof registerAdminSchema>;

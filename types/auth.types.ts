@@ -58,7 +58,7 @@ export interface RegisterAdminDTO {
   email: string;
   password: string;
   address: string;
-  role?: ROLES.ADMIN;
+  role?: ROLES;
   profile_image_url?: string;
 }
 

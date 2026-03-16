@@ -1,6 +1,6 @@
 # Food Delivery System — Frontend
 
-A multi-role food delivery web application built with Next.js 15, supporting Customer, Driver, and Admin user types.
+A multi-role food delivery web application built with Next.js 16, supporting Customer, Driver, and Admin user types.
 
 ---
 
@@ -8,7 +8,7 @@ A multi-role food delivery web application built with Next.js 15, supporting Cus
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript 5 (strict) |
 | Styling | Tailwind CSS v4 + shadcn/ui |
 | Auth | NextAuth.js v4 (JWT, 3 credential providers) |
@@ -17,6 +17,7 @@ A multi-role food delivery web application built with Next.js 15, supporting Cus
 | HTTP | Axios v1 (with request/response interceptors) |
 | Forms | React Hook Form v7 + Zod v4 |
 | Icons | Lucide React |
+| Runtime | React 19 |
 
 ---
 
@@ -42,6 +43,8 @@ Create a `.env.local` file in the project root:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key
+NEXTAUTH_URL=http://localhost:4200
 ```
 
 ---
@@ -62,17 +65,19 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 ```text
 food-delivery-frontend/
 ├── app/
-│   ├── api/auth/[...nextauth]/   # NextAuth catch-all route
+│   ├── api/auth/[...nextauth]/   # NextAuth catch-all route (GET, POST handlers)
 │   ├── layout.tsx                # Root layout with providers
 │   ├── page.tsx                  # Home page
-│   └── provider.tsx              # SessionProvider + QueryClient + Zustand sync
+│   └── provider.tsx              # SessionProvider + QueryClient + Zustand sync bridge
 ├── components/
 │   ├── ui/                       # shadcn/ui components (Button, ...)
-│   └── shared/                   # Shared application components
-├── hooks/                        # Custom React hooks
+│   └── shared/                   # Shared application components (in progress)
+├── hooks/
+│   ├── useLogin.ts               # Universal login hook (wraps NextAuth signIn)
+│   └── useRegister.ts            # Registration hooks for Customer, Driver, Admin
 ├── lib/
 │   ├── auth.ts                   # NextAuth config (Customer / Driver / Admin providers)
-│   ├── axios.ts                  # Axios instance with JWT interceptor
+│   ├── axios.ts                  # Axios instance with JWT interceptor + AppException handling
 │   └── utils.ts                  # cn() utility (clsx + tailwind-merge)
 ├── schemas/                      # Zod validation schemas
 │   ├── auth.schema.ts
@@ -82,19 +87,45 @@ food-delivery-frontend/
 │   ├── order.schema.ts
 │   └── restaurant.schema.ts
 ├── services/                     # API service layer
-│   ├── auth.service.ts
-│   └── customer.service.ts
+│   ├── auth.service.ts           # Auth methods (reference implementation)
+│   └── customer.service.ts       # Customer profile and order methods
 ├── store/                        # Zustand stores
+│   ├── interfaces/               # Store state interface definitions
+│   │   ├── auth.state.interface.ts
+│   │   ├── cart.state.interface.ts
+│   │   └── ui.state.interface.ts
 │   ├── auth.store.ts
 │   ├── cart.store.ts
 │   └── ui.store.ts
 └── types/                        # TypeScript type definitions
-    ├── api.types.ts
-    ├── auth.types.ts
-    ├── customer.types.ts
+    ├── api.types.ts              # ApiSuccessResponse, ApiErrorResponse, AppException, PaginatedResponse
+    ├── auth.types.ts             # ROLES, VEHICLE_TYPE, UserType, DTOs
+    ├── customer.types.ts         # Customer, UpdateCustomerDTO, UpdatePasswordDTO, ForgotPasswordDTO
+    ├── map.ts                    # PROVIDER_MAP and REDIRECT_MAP for auth routing
+    ├── next-auth.d.ts            # NextAuth module augmentation (Session, JWT, User)
     ├── order.types.ts
-    ├── restaurant.types.ts
-    └── next-auth.d.ts
+    └── restaurant.types.ts
+```
+
+---
+
+## Hooks
+
+### `useLogin`
+
+Universal login hook accepting a `UserType` (`"customer"`, `"driver"`, `"admin"`). Uses `PROVIDER_MAP` to select the correct NextAuth credential provider and `REDIRECT_MAP` for post-login navigation.
+
+```typescript
+const { login, isLoading, error } = useLogin("customer");
+```
+
+### `useRegisterCustomer` / `useRegisterDriver` / `useRegisterAdmin`
+
+React Query mutation hooks for user registration. On success each hook redirects to `/login?registered=<role>`.
+
+```typescript
+const mutation = useRegisterCustomer();
+mutation.mutate(formValues);
 ```
 
 ---
@@ -103,16 +134,16 @@ food-delivery-frontend/
 
 ### `auth.service.ts`
 
-Handles authentication for all three user roles.
+Reference implementation for authentication. The actual auth flow goes through NextAuth providers in `lib/auth.ts`. This file demonstrates how to call the auth endpoints directly.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `loginCustomer` | `POST /api/auth/customer/login` | Customer login |
-| `loginDriver` | `POST /api/auth/driver/login` | Driver login |
-| `loginAdmin` | `POST /api/auth/admin/login` | Admin login |
-| `registerCustomer` | `POST /api/auth/customer/register` | Register customer |
-| `registerDriver` | `POST /api/auth/driver/register` | Register driver |
-| `registerAdmin` | `POST /api/auth/admin/register` | Register admin |
+| `loginCustomer` | `POST /auth/login/customer` | Customer login |
+| `loginDriver` | `POST /auth/login/driver` | Driver login |
+| `loginAdmin` | `POST /auth/login/admin` | Admin login |
+| `registerCustomer` | `POST /auth/register/customer` | Register customer |
+| `registerDriver` | `POST /auth/register/driver` | Register driver |
+| `registerAdmin` | `POST /auth/register/admin` | Register admin |
 
 ### `customer.service.ts`
 
@@ -131,13 +162,20 @@ Manages customer profile and order data.
 
 ## Authentication
 
-Three separate credential providers are configured in NextAuth:
+Three separate credential providers are configured in `lib/auth.ts`:
 
-- **Customer** — `jwt-customer` strategy
-- **Driver** — `jwt-driver` strategy
-- **Admin** — `jwt-admin` strategy
+- **Customer** — `customer-login` provider
+- **Driver** — `driver-login` provider
+- **Admin** — `admin-login` provider
 
-The JWT token is automatically attached to every API request via the Axios request interceptor. The Zustand `auth.store` is kept in sync with the NextAuth session through a provider bridge.
+The JWT token is automatically attached to every API request via the Axios request interceptor in `lib/axios.ts`. The Zustand `auth.store` is kept in sync with the NextAuth session through the `AsyncBridge` component in `provider.tsx`.
+
+### Auth Routing Maps (`types/map.ts`)
+
+| Map | Purpose |
+| --- | --- |
+| `PROVIDER_MAP` | Maps `UserType` → NextAuth provider ID |
+| `REDIRECT_MAP` | Maps `UserType` → post-login dashboard path |
 
 ---
 
@@ -146,8 +184,22 @@ The JWT token is automatically attached to every API request via the Axios reque
 | Store | Persisted | Contents |
 | --- | --- | --- |
 | `auth.store` | Yes (localStorage) | User, token, role, selectors |
-| `cart.store` | Yes (localStorage) | Cart items, totals, actions |
+| `cart.store` | Yes (localStorage) | Cart items, restaurantId, totals, actions |
 | `ui.store` | No | Loading state, sidebar, modal visibility |
+
+Each store exposes fine-grained selector hooks (e.g. `useUser`, `useIsCustomer`, `useCartItems`, `useIsLoading`).
+
+---
+
+## HTTP Client (`lib/axios.ts`)
+
+The `apiClient` wraps Axios with:
+- **Request interceptor** — reads the NextAuth session and injects `Authorization: Bearer <token>`
+- **Response interceptor** — unwraps the backend's `ApiSuccessResponse.data` payload; on error, throws a typed `AppException`
+
+```typescript
+export const apiClient = { get, post, put, patch, delete };
+```
 
 ---
 
