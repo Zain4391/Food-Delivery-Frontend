@@ -132,8 +132,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: user.name,
             email: user.email,
             accessToken: access_token,
-            role: ROLES.DRIVER,
-            userType: "driver" as const,
+            role: ROLES.ADMIN,
+            userType: "admin" as const,
           };
         } catch (error) {
           if (error instanceof AppException) {

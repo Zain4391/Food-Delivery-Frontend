@@ -17,7 +17,7 @@ export default function LoginPage() {
   return (
     <>
       <AuthHeroPanel
-        image="/images/login.jpg"
+        image="/images/login.png"
         imageAlt="Delicious food spread ready to be delivered"
         headline="Good food is just a tap away."
         subtext="Sign in to order your favourites, track deliveries, and manage your account."
