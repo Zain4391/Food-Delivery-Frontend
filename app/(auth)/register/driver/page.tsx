@@ -1,3 +1,5 @@
+"use client";
+
 import { AuthFormField } from "@/components/auth/AuthFormField";
 import { AuthHeroPanel } from "@/components/auth/AuthHeroPanel";
 import { AuthPasswordField } from "@/components/auth/AuthPasswordField";
