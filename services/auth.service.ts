@@ -1,10 +1,3 @@
-/**
- * FOR Future Reference. We can use this in the lib.auth.ts inside authorize callback.
- * THIS FILE IS NOT BEING USED ANYWHERE AND IS JUST FOR LEARNING PURPOSES!
- *
- *
- */
-
 import { apiClient } from "@/lib/axios";
 import {
   AuthResponseDTO,
@@ -16,20 +9,20 @@ import {
 
 export const authService = {
   loginCustomer: (data: LoginDTO): Promise<AuthResponseDTO> =>
-    apiClient.post<AuthResponseDTO>("/auth/login/customer", data),
+    apiClient.post<AuthResponseDTO>("/api/auth/customer/login", data),
 
   loginDriver: (data: LoginDTO): Promise<AuthResponseDTO> =>
-    apiClient.post<AuthResponseDTO>("/auth/login/driver", data),
+    apiClient.post<AuthResponseDTO>("/api/auth/driver/login", data),
 
   loginAdmin: (data: LoginDTO): Promise<AuthResponseDTO> =>
-    apiClient.post<AuthResponseDTO>("/auth/login/admin", data),
+    apiClient.post<AuthResponseDTO>("/api/auth/admin/login", data),
 
   registerCustomer: (data: RegisterCustomerDTO): Promise<AuthResponseDTO> =>
-    apiClient.post<AuthResponseDTO>("/auth/register/customer", data),
+    apiClient.post<AuthResponseDTO>("/api/auth/customer/register", data),
 
   registerDriver: (data: RegisterDriverDTO): Promise<AuthResponseDTO> =>
-    apiClient.post<AuthResponseDTO>("/auth/register/driver", data),
+    apiClient.post<AuthResponseDTO>("/api/auth/driver/register", data),
 
   registerAdmin: (data: RegisterAdminDTO): Promise<AuthResponseDTO> =>
-    apiClient.post<AuthResponseDTO>("/auth/register/admin", data),
+    apiClient.post<AuthResponseDTO>("/api/auth/admin/register", data),
 };
