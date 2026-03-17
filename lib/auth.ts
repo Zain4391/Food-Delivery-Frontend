@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { apiClient } from "./axios";
+import { apiClient } from "./axios.server";
 import { AuthResponseDTO, LoginDTO, ROLES } from "@/types/auth.types";
 import { User } from "@/types/next-auth";
 import { AppException } from "@/types/api.types";
