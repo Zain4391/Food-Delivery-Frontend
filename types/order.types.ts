@@ -41,3 +41,12 @@ export interface OrderPaginationDTO {
   page?: number;
   limit?: number;
 }
+
+export interface OrderListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: OrderStatus;
+  sortBy?: string;
+  sortOrder?: "ASC" | "DESC";
+}

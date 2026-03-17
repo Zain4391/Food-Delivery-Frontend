@@ -10,9 +10,9 @@ export interface Customer {
 }
 
 export interface UpdateCustomerDTO {
-  name?: string;
-  email?: string;
-  address?: string;
+  name: string;
+  email: string;
+  address: string;
 }
 
 export interface UpdatePasswordDTO {
@@ -25,4 +25,12 @@ export interface ForgotPasswordDTO {
   email: string;
   newPassword: string;
   confirmNewPassword: string;
+}
+
+export interface CustomerListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "ASC" | "DESC";
 }

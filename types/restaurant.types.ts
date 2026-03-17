@@ -40,3 +40,14 @@ export interface RestaurantListParams {
   limit?: number;
   search?: string;
 }
+
+export interface MenuItemCreateDTO {
+  name: string;
+  description?: string;
+  price: number;
+  category: CATEGORY;
+  preparation_time: number;
+  is_available?: boolean;
+}
+
+export type MenuItemUpdateDTO = Partial<MenuItemCreateDTO>;
