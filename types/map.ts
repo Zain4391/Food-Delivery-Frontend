@@ -7,9 +7,9 @@ export const PROVIDER_MAP: Record<UserType, string> = {
 };
 
 export const REDIRECT_MAP: Record<UserType, string> = {
-  customer: "/customer/dashboard",
-  driver: "/driver/dashboard",
-  admin: "/admin/dashboard",
+  customer: "/dashboard/customer",
+  driver: "/dashboard/driver",
+  admin: "/dashboard/admin",
 };
 
 type RoleConfig = {
