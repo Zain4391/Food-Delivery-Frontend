@@ -6,7 +6,7 @@ import {
 import { authService } from "@/services/auth.service";
 import { ROLES } from "@/types/auth.types";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export function useRegisterCustomer() {
   const router = useRouter();
