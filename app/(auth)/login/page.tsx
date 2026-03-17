@@ -1,3 +1,5 @@
+"use client";
+
 import { AuthHeroPanel } from "@/components/auth/AuthHeroPanel";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";

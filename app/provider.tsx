@@ -5,6 +5,7 @@
  * Handles Zustand hydration safely for SSR
  */
 
+"use client";
 import { SessionProvider, useSession } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useEffect } from "react";
