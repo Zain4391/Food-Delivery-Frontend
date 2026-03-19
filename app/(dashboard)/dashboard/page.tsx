@@ -23,6 +23,8 @@ import { useOrders } from "@/hooks/queries/useOrders";
 import { useCustomers } from "@/hooks/queries/useCustomer";
 import { useDrivers } from "@/hooks/queries/useDriver";
 import { useIsAdmin } from "@/store/auth.store";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { STATUS_VARIANT } from "@/types/map";
 import { OrderStatus } from "@/types/order.types";
 
 const ACTIVE_STATUSES: OrderStatus[] = [
@@ -32,34 +34,6 @@ const ACTIVE_STATUSES: OrderStatus[] = [
   "ready",
   "picked_up",
 ];
-
-const STATUS_VARIANT: Record<
-  OrderStatus,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  pending: "secondary",
-  confirmed: "secondary",
-  preparing: "secondary",
-  ready: "default",
-  picked_up: "default",
-  delivered: "outline",
-  cancelled: "destructive",
-};
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
