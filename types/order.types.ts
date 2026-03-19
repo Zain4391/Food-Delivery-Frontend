@@ -12,8 +12,8 @@ export interface OrderItem {
   menu_item_id: string;
   quantity: number;
   unit_price: number;
-  subtotal: number; // fixed: was missing, backend OrderItemResponseDTO exposes subtotal
-  created_at: string; // fixed: was missing, backend OrderItemResponseDTO exposes created_at
+  subtotal: number;
+  created_at: string;
 }
 
 export interface Order {
