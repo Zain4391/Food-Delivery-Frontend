@@ -6,7 +6,7 @@ import { AuthPasswordField } from "@/components/auth/AuthPasswordField";
 import { AuthRoleTab } from "@/components/auth/AuthRoleTab";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useRegisterAdmin } from "@/hooks/useRegister";
+import { useRegisterAdmin } from "@/hooks/mutations/useRegister";
 import {
   registerAdminSchema,
   RegisterCustomerFormValues,

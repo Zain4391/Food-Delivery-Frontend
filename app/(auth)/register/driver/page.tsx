@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRegisterDriver } from "@/hooks/useRegister";
+import { useRegisterDriver } from "@/hooks/mutations/useRegister";
 import {
   RegisterDriverFormValues,
   registerDriverSchema,

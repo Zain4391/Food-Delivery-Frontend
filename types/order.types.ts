@@ -49,3 +49,13 @@ export interface OrderListParams {
   sortBy?: "order_date" | "total_amount" | "status" | "updated_at";
   sortOrder?: "ASC" | "DESC";
 }
+
+export interface UpdateOrderStatusDTO {
+  id: string;
+  status: OrderStatus;
+}
+
+export interface AssignDriverDTO {
+  orderId: string;
+  driverId: string;
+}

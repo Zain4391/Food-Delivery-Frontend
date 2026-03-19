@@ -1,4 +1,4 @@
-import { useLogin } from "@/hooks/useLogin";
+import { useLogin } from "@/hooks/queries/useLogin";
 import { LoginFormValues, loginSchema } from "@/schemas/auth.schema";
 import { UserType } from "@/types/auth.types";
 import { ROLE_CONFIG } from "@/types/map";
