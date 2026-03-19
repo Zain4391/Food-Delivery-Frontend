@@ -1,63 +1,49 @@
-import { apiClient } from "@/lib/axios.server";
+import { apiClient } from "@/lib/axios";
+import { Order, OrderStatus, CreateOrderDTO } from "@/types/order.types";
 import { PaginatedResponse } from "@/types/api.types";
-import {
-  CreateOrderDTO,
-  Order,
-  OrderListParams,
-  OrderStatus,
-} from "@/types/order.types";
+
+export interface OrderListParams {
+  page?: number;
+  limit?: number;
+  // fixed: removed 'search' — backend OrderPaginationDTO has no search field
+  status?: OrderStatus;
+  customer_id?: string;            // fixed: was missing, backend supports this filter
+  restaurant_id?: string;          // fixed: was missing, backend supports this filter
+  driver_id?: string;              // fixed: was missing, backend supports this filter
+  sortBy?: "order_date" | "total_amount" | "status" | "updated_at";  // fixed: constrained to backend valid values
+  sortOrder?: "ASC" | "DESC";
+}
 
 export const orderService = {
-  getAllOrders: (params?: OrderListParams) => {
-    return apiClient.get<PaginatedResponse<Order>>("/order/all", { params });
-  },
-  getOrderById: (id: string) => {
-    return apiClient.get<Order>(`/order/${id}`);
-  },
+  // ── Read ───────────────────────────────────────────────
+  getAllOrders: (params?: OrderListParams) =>
+    apiClient.get<PaginatedResponse<Order>>("/order/all", { params }),
 
-  getOrdersByCustomer: (customerId: string, params?: OrderListParams) => {
-    return apiClient.get<PaginatedResponse<Order>>(
-      `/order/customer/${customerId}`,
-      {
-        params,
-      },
-    );
-  },
+  getOrderById: (id: string) =>
+    apiClient.get<Order>(`/order/${id}`),
 
-  getOrdersByRestaurant: (restaurantId: string, params?: OrderListParams) => {
-    return apiClient.get<PaginatedResponse<Order>>(
-      `/order/restaurant/${restaurantId}`,
-      { params },
-    );
-  },
+  getOrdersByCustomer: (customerId: string, params?: OrderListParams) =>
+    apiClient.get<PaginatedResponse<Order>>(`/order/customer/${customerId}`, { params }),
 
-  getOrdersByDriver: (driverId: string, params?: OrderListParams) => {
-    return apiClient.get<PaginatedResponse<Order>>(
-      `/order/driver/${driverId}`,
-      {
-        params,
-      },
-    );
-  },
-  createOrder: (data: CreateOrderDTO) => {
-    return apiClient.post<Order>("/order/create", data);
-  },
+  getOrdersByRestaurant: (restaurantId: string, params?: OrderListParams) =>
+    apiClient.get<PaginatedResponse<Order>>(`/order/restaurant/${restaurantId}`, { params }),
 
-  updateOrderStatus: (id: string, status: OrderStatus) => {
-    return apiClient.patch<Order>(`/order/update-status/${id}`, { status });
-  },
+  getOrdersByDriver: (driverId: string, params?: OrderListParams) =>
+    apiClient.get<PaginatedResponse<Order>>(`/order/driver/${driverId}`, { params }),
 
-  assignDriver: (orderId: string, driverId: string) => {
-    return apiClient.patch<Order>(`/order/assign-driver/${orderId}`, {
-      driverId,
-    });
-  },
+  // ── Write ──────────────────────────────────────────────
+  createOrder: (data: CreateOrderDTO) =>
+    apiClient.post<Order>("/order/create", data),
 
-  cancelOrder: (id: string) => {
-    return apiClient.patch<void>(`/order/cancel/${id}`);
-  },
+  updateOrderStatus: (id: string, status: OrderStatus) =>
+    apiClient.patch<Order>(`/order/update-status/${id}`, { status }),
 
-  deleteOrder: (id: string) => {
-    return apiClient.delete<void>(`/order/delete/${id}`);
-  },
+  assignDriver: (orderId: string, driverId: string) =>
+    apiClient.patch<Order>(`/order/assign-driver/${orderId}`, { driverId }),
+
+  cancelOrder: (id: string) =>
+    apiClient.patch<void>(`/order/cancel/${id}`),
+
+  deleteOrder: (id: string) =>
+    apiClient.delete<void>(`/order/delete/${id}`),
 };

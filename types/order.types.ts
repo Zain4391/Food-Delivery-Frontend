@@ -12,6 +12,8 @@ export interface OrderItem {
   menu_item_id: string;
   quantity: number;
   unit_price: number;
+  subtotal: number;                // fixed: was missing, backend OrderItemResponseDTO exposes subtotal
+  created_at: string;             // fixed: was missing, backend OrderItemResponseDTO exposes created_at
 }
 
 export interface Order {
@@ -37,16 +39,4 @@ export interface CreateOrderDTO {
   items: { menu_item_id: string; quantity: number }[];
 }
 
-export interface OrderPaginationDTO {
-  page?: number;
-  limit?: number;
-}
-
-export interface OrderListParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: OrderStatus;
-  sortBy?: string;
-  sortOrder?: "ASC" | "DESC";
-}
+// fixed: removed unused OrderPaginationDTO — replaced by OrderListParams in order.service.ts

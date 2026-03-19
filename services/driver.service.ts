@@ -1,30 +1,22 @@
 import { apiClient } from "@/lib/axios";
-import {
-  Driver,
-  UpdateDriverDTO,
-  UpdatePasswordDTO,
-  ForgotPasswordDTO,
-} from "../types/drivers.type";
+import { Driver, UpdateDriverDTO, UpdateDriverPasswordDTO, ForgotDriverPasswordDTO } from "@/types/driver.types";
 import { Order } from "@/types/order.types";
 import { PaginatedResponse } from "@/types/api.types";
 import { VEHICLE_TYPE } from "@/types/auth.types";
 
 export const driverService = {
-  getProfile: () => {
-    return apiClient.get<Driver>("/driver/profile");
-  },
+  // ── Profile ────────────────────────────────────────────
+  getProfile: () =>
+    apiClient.get<Driver>("/driver/profile"),
 
-  updateProfile: (id: string, data: UpdateDriverDTO) => {
-    return apiClient.put<Driver>(`/driver/update/${id}`, data);
-  },
+  updateProfile: (id: string, data: UpdateDriverDTO) =>
+    apiClient.put<Driver>(`/driver/update/${id}`, data),
 
-  updatePassword: (id: string, data: UpdatePasswordDTO) => {
-    return apiClient.put<void>(`/driver/update-password/${id}`, data);
-  },
+  updatePassword: (id: string, data: UpdateDriverPasswordDTO) =>
+    apiClient.put<void>(`/driver/update-password/${id}`, data),
 
-  forgotPassword: (data: ForgotPasswordDTO) => {
-    return apiClient.post<void>("/driver/forgot-password", data);
-  },
+  forgotPassword: (data: ForgotDriverPasswordDTO) =>
+    apiClient.post<void>("/driver/forgot-password", data),
 
   uploadProfileImage: (id: string, file: File) => {
     const formData = new FormData();
@@ -36,43 +28,20 @@ export const driverService = {
     );
   },
 
-  toggleAvailability: (id: string) => {
-    return apiClient.patch<Driver>(`/driver/toggle-availability/${id}`);
-  },
+  // ── Availability & Vehicle ─────────────────────────────
+  toggleAvailability: (id: string) =>
+    apiClient.patch<Driver>(`/driver/toggle-availability/${id}`),
 
-  changeVehicle: (id: string, vehicle_type: VEHICLE_TYPE) => {
-    return apiClient.patch<Driver>(`/driver/change-vehicle/${id}`, {
-      vehicle_type,
-    });
-  },
+  changeVehicle: (id: string, vehicle_type: VEHICLE_TYPE) =>
+    apiClient.patch<Driver>(`/driver/change-vehicle/${id}`, { vehicle_type }),
 
-  getDeliveredOrders: (
-    id: string,
-    params?: { page?: number; limit?: number },
-  ) => {
-    return apiClient.get<PaginatedResponse<Order>>(
-      `/driver/orders/delivered/${id}`,
-      {
-        params,
-      },
-    );
-  },
+  // ── Orders ─────────────────────────────────────────────
+  getDeliveredOrders: (id: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get<PaginatedResponse<Order>>(`/driver/orders/delivered/${id}`, { params }),
 
-  getPendingOrders: (
-    id: string,
-    params?: { page?: number; limit?: number },
-  ) => {
-    return apiClient.get<PaginatedResponse<Order>>(
-      `/driver/orders/pending/${id}`,
-      {
-        params,
-      },
-    );
-  },
+  getPendingOrders: (id: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get<PaginatedResponse<Order>>(`/driver/orders/pending/${id}`, { params }),
 
-  getAllOrders: (id: string, params?: { page?: number; limit?: number }) => {
-    return apiClient.get<PaginatedResponse<Order>>(`/driver/orders/all/${id}`, {
-      params,
-    });
-  },
+  getAllOrders: (id: string, params?: { page?: number; limit?: number }) =>
+    apiClient.get<PaginatedResponse<Order>>(`/driver/orders/all/${id}`, { params }),
 };
