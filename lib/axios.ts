@@ -8,8 +8,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-
-import { getSession } from "next-auth/react";
+import { useAuthStore } from "@/store/auth.store";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
@@ -20,11 +19,11 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    const session = await getSession();
+  (config: InternalAxiosRequestConfig) => {
+    const token = useAuthStore.getState().accessToken;
 
-    if (session?.accessToken) {
-      config.headers.set("Authorization", `Bearer ${session.accessToken}`);
+    if (token) {
+      config.headers.set("Authorization", `Bearer ${token}`);
     }
 
     return config;
@@ -49,7 +48,6 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-// To remove typecasting and use explicit types:
 export const apiClient = {
   get: <T>(url: string, config?: object): Promise<T> =>
     axiosInstance.get(url, config),
