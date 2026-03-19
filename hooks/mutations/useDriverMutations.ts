@@ -1,13 +1,15 @@
 import { adminService } from "@/services/admin.service";
 import { driverService } from "@/services/driver.service";
 import {
-  UpdateProfileImageDTO,
-  UpdateProfilePasswordDTO,
-} from "@/types/customer.types";
-import { ChangeVehicleDTO, UpdateDriverProfileDTO } from "@/types/driver.types";
+  ChangeVehicleDTO,
+  UpdateDriverProfileDTO,
+  UpdateDriverProfileImgDTO,
+  UpdateDriverProfilePasswordDTO,
+} from "@/types/driver.types";
+import { AppException } from "@/types/api.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function useUpdateProfile() {
+export function useUpdateDriverProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -16,29 +18,38 @@ export function useUpdateProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
     },
-  });
-}
-
-export function useProfileImage() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: UpdateProfileImageDTO) =>
-      driverService.uploadProfileImage(payload.id, payload.file),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    onError: (error: AppException) => {
+      console.error("[useUpdateDriverProfile]", error.message);
     },
   });
 }
 
-export function useUpdatePassword() {
+export function useUpdateDriverProfileImage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateProfilePasswordDTO) =>
+    mutationFn: (payload: UpdateDriverProfileImgDTO) =>
+      driverService.uploadProfileImage(payload.id, payload.file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useUpdateDriverProfileImage]", error.message);
+    },
+  });
+}
+
+export function useUpdateDriverPassword() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateDriverProfilePasswordDTO) =>
       driverService.updatePassword(payload.id, payload.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useUpdateDriverPassword]", error.message);
     },
   });
 }
@@ -50,6 +61,9 @@ export function useToggleAvailability() {
     mutationFn: (id: string) => driverService.toggleAvailability(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useToggleAvailability]", error.message);
     },
   });
 }
@@ -63,15 +77,22 @@ export function useChangeVehicle() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
     },
+    onError: (error: AppException) => {
+      console.error("[useChangeVehicle]", error.message);
+    },
   });
 }
 
 export function useDeleteDriver() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (id: string) => adminService.deleteDriver(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useDeleteDriver]", error.message);
     },
   });
 }

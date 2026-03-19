@@ -4,6 +4,7 @@ import {
   CreateOrderDTO,
   UpdateOrderStatusDTO,
 } from "@/types/order.types";
+import { AppException } from "@/types/api.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useCreateOrder() {
@@ -13,6 +14,9 @@ export function useCreateOrder() {
     mutationFn: (payload: CreateOrderDTO) => orderService.createOrder(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useCreateOrder]", error.message);
     },
   });
 }
@@ -26,6 +30,9 @@ export function useUpdateOrderStatus() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
+    onError: (error: AppException) => {
+      console.error("[useUpdateOrderStatus]", error.message);
+    },
   });
 }
 
@@ -38,6 +45,9 @@ export function useAssignDriver() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
+    onError: (error: AppException) => {
+      console.error("[useAssignDriver]", error.message);
+    },
   });
 }
 
@@ -49,6 +59,9 @@ export function useCancelOrder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
+    onError: (error: AppException) => {
+      console.error("[useCancelOrder]", error.message);
+    },
   });
 }
 
@@ -59,6 +72,9 @@ export function useDeleteOrder() {
     mutationFn: (id: string) => orderService.deleteOrder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useDeleteOrder]", error.message);
     },
   });
 }

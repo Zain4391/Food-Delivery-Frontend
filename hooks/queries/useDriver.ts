@@ -25,14 +25,14 @@ export function useDriver(id: string) {
 
 export function useDriverProfile() {
   return useQuery({
-    queryKey: ["drivers"],
+    queryKey: ["drivers", "profile"],
     queryFn: () => driverService.getProfile(),
   });
 }
 
 export function useDeliveredOrders(payload: DeliveredOrdersDTO) {
   return useQuery({
-    queryKey: ["drivers", payload],
+    queryKey: ["drivers", payload.id, "orders", "delivered", { page: payload.page, limit: payload.limit }],
     queryFn: () =>
       driverService.getDeliveredOrders(payload.id, {
         page: payload.page,
@@ -44,7 +44,7 @@ export function useDeliveredOrders(payload: DeliveredOrdersDTO) {
 
 export function usePendingOrders(payload: PendingOrdersDTO) {
   return useQuery({
-    queryKey: ["drivers", payload],
+    queryKey: ["drivers", payload.id, "orders", "pending", { page: payload.page, limit: payload.limit }],
     queryFn: () =>
       driverService.getPendingOrders(payload.id, {
         page: payload.page,
@@ -54,9 +54,9 @@ export function usePendingOrders(payload: PendingOrdersDTO) {
   });
 }
 
-export function useAllOrders(id: string, params?: OrderListParams) {
+export function useDriverAllOrders(id: string, params?: OrderListParams) {
   return useQuery({
-    queryKey: ["drivers", "orders", id, params],
+    queryKey: ["drivers", id, "orders", params],
     queryFn: () => driverService.getAllOrders(id, params),
     enabled: Boolean(id),
   });
