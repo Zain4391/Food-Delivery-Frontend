@@ -21,9 +21,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useOrders } from "@/hooks/queries/useOrders";
 import { useCustomers } from "@/hooks/queries/useCustomer";
 import { useDrivers } from "@/hooks/queries/useDriver";
+import { useIsAdmin } from "@/store/auth.store";
 import { OrderStatus } from "@/types/order.types";
-import { STATUS_VARIANT } from "@/types/map";
-import { formatCurrency, formatDate } from "@/lib/utils";
 
 const ACTIVE_STATUSES: OrderStatus[] = [
   "pending",
@@ -33,26 +32,54 @@ const ACTIVE_STATUSES: OrderStatus[] = [
   "picked_up",
 ];
 
+const STATUS_VARIANT: Record<
+  OrderStatus,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
+  pending: "secondary",
+  confirmed: "secondary",
+  preparing: "secondary",
+  ready: "default",
+  picked_up: "default",
+  delivered: "outline",
+  cancelled: "destructive",
+};
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(value);
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export default function DashboardPage() {
-  const { data: ordersData, isLoading: ordersLoading } = useOrders({
-    limit: 100,
-    sortBy: "order_date",
-    sortOrder: "DESC",
-  });
+  const isAdmin = useIsAdmin();
 
-  const { data: recentOrdersData, isLoading: recentLoading } = useOrders({
-    limit: 5,
-    sortBy: "order_date",
-    sortOrder: "DESC",
-  });
+  const { data: ordersData, isLoading: ordersLoading } = useOrders(
+    { limit: 100, sortBy: "order_date", sortOrder: "DESC" },
+  );
 
-  const { data: customersData, isLoading: customersLoading } = useCustomers({
-    limit: 1,
-  });
+  const { data: recentOrdersData, isLoading: recentLoading } = useOrders(
+    { limit: 5, sortBy: "order_date", sortOrder: "DESC" },
+  );
 
-  const { data: driversData, isLoading: driversLoading } = useDrivers({
-    limit: 100,
-  });
+  const { data: customersData, isLoading: customersLoading } = useCustomers(
+    { limit: 1 },
+    { enabled: isAdmin },
+  );
+
+  const { data: driversData, isLoading: driversLoading } = useDrivers(
+    { limit: 100 },
+    { enabled: isAdmin },
+  );
 
   const totalRevenue =
     ordersData?.data
@@ -60,17 +87,11 @@ export default function DashboardPage() {
       .reduce((sum, o) => sum + Number(o.total_amount), 0) ?? 0;
 
   const activeOrdersCount =
-    ordersData?.data.filter((o) => ACTIVE_STATUSES.includes(o.status)).length ??
-    0;
+    ordersData?.data.filter((o) => ACTIVE_STATUSES.includes(o.status)).length ?? 0;
 
   const totalCustomers = customersData?.total ?? 0;
-
-  const activeDriversCount =
-    driversData?.data.filter((d) => d.is_available).length ?? 0;
-
-  const onDeliveryCount =
-    driversData?.data.filter((d) => !d.is_available).length ?? 0;
-
+  const activeDriversCount = driversData?.data.filter((d) => d.is_available).length ?? 0;
+  const onDeliveryCount = driversData?.data.filter((d) => !d.is_available).length ?? 0;
   const recentOrders = recentOrdersData?.data ?? [];
 
   return (
@@ -89,13 +110,9 @@ export default function DashboardPage() {
             {ordersLoading ? (
               <Skeleton className="h-8 w-32" />
             ) : (
-              <div className="text-2xl font-bold">
-                {formatCurrency(totalRevenue)}
-              </div>
+              <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
             )}
-            <p className="text-xs text-muted-foreground">
-              From delivered orders
-            </p>
+            <p className="text-xs text-muted-foreground">From delivered orders</p>
           </CardContent>
         </Card>
 
@@ -110,9 +127,7 @@ export default function DashboardPage() {
             ) : (
               <div className="text-2xl font-bold">{activeOrdersCount}</div>
             )}
-            <p className="text-xs text-muted-foreground">
-              Pending through picked up
-            </p>
+            <p className="text-xs text-muted-foreground">Pending through picked up</p>
           </CardContent>
         </Card>
 
@@ -125,7 +140,9 @@ export default function DashboardPage() {
             {customersLoading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <div className="text-2xl font-bold">{totalCustomers}</div>
+              <div className="text-2xl font-bold">
+                {isAdmin ? totalCustomers : "—"}
+              </div>
             )}
             <p className="text-xs text-muted-foreground">Total registered</p>
           </CardContent>
@@ -133,19 +150,19 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Drivers
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Active Drivers</CardTitle>
             <Bike className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {driversLoading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
-              <div className="text-2xl font-bold">{activeDriversCount}</div>
+              <div className="text-2xl font-bold">
+                {isAdmin ? activeDriversCount : "—"}
+              </div>
             )}
             <p className="text-xs text-muted-foreground">
-              {onDeliveryCount} currently on delivery
+              {isAdmin ? `${onDeliveryCount} currently on delivery` : "Admin only"}
             </p>
           </CardContent>
         </Card>
@@ -156,9 +173,7 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
               <CardTitle>Recent Orders</CardTitle>
-              <CardDescription>
-                Latest 5 orders from your store.
-              </CardDescription>
+              <CardDescription>Latest 5 orders from your store.</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
@@ -175,26 +190,15 @@ export default function DashboardPage() {
                 {recentLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-4 w-48" />
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Skeleton className="h-4 w-20" />
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <Skeleton className="h-4 w-24" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-4 w-16 ml-auto" />
-                      </TableCell>
+                      <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                     </TableRow>
                   ))
                 ) : recentOrders.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="text-center text-muted-foreground"
-                    >
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
                       No orders found.
                     </TableCell>
                   </TableRow>
