@@ -7,7 +7,7 @@ export interface Driver {
   phone: string;
   vehicle_type: VEHICLE_TYPE;
   is_available: boolean;
-  profile_img_url?: string; // matches DriverResponseDTO (exposes profile_img_url)
+  profile_img_url?: string;
   role: string;
   created_at: string;
   updated_at: string;
@@ -15,9 +15,9 @@ export interface Driver {
 
 export interface UpdateDriverDTO {
   name?: string;
-  email?: string; // fixed: was missing, backend UpdateDriverDTO has email
+  email?: string;
   phone?: string;
-  vehicle_type?: VEHICLE_TYPE; // fixed: was missing, backend UpdateDriverDTO has vehicle_type
+  vehicle_type?: VEHICLE_TYPE;
 }
 
 export interface UpdateDriverPasswordDTO {
@@ -38,4 +38,36 @@ export interface DriverListParams {
   search?: string;
   sortBy?: "name" | "email" | "created_at";
   sortOrder?: "ASC" | "DESC";
+}
+
+export interface UpdateDriverProfileImgDTO {
+  id: string;
+  file: File;
+}
+
+export interface UpdateDriverProfileDTO {
+  id: string;
+  data: UpdateDriverDTO;
+}
+
+export interface UpdateDriverProfilePasswordDTO {
+  id: string;
+  data: UpdateDriverPasswordDTO;
+}
+
+export interface ChangeVehicleDTO {
+  id: string;
+  vehicle_type: VEHICLE_TYPE;
+}
+
+export interface DeliveredOrdersDTO {
+  id: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PendingOrdersDTO {
+  id: string;
+  page?: number;
+  limit?: number;
 }

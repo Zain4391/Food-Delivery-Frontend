@@ -5,7 +5,7 @@ import {
   UpdateDriverPasswordDTO,
   ForgotDriverPasswordDTO,
 } from "@/types/driver.types";
-import { Order } from "@/types/order.types";
+import { Order, OrderListParams } from "@/types/order.types";
 import { PaginatedResponse } from "@/types/api.types";
 import { VEHICLE_TYPE } from "@/types/auth.types";
 
@@ -50,7 +50,7 @@ export const driverService = {
       params,
     }),
 
-  getAllOrders: (id: string, params?: { page?: number; limit?: number }) =>
+  getAllOrders: (id: string, params?: OrderListParams) =>
     apiClient.get<PaginatedResponse<Order>>(`/driver/orders/all/${id}`, {
       params,
     }),
