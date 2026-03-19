@@ -1,7 +1,7 @@
 "use client";
 import { SessionProvider, useSession } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useAuthStore } from "@/store/auth.store";
 
 function makeQueryClient() {
@@ -29,34 +29,32 @@ function getQueryClient() {
 
 function AsyncBridge() {
   const { data: session, status } = useSession();
-  const { setAuth, clearAuth } = useAuthStore();
+  const syncedRef = useRef(false);
 
   useEffect(() => {
     if (status === "loading") return;
 
-    if (status === "authenticated" && session) {
-      const timer = setTimeout(() => {
-        setAuth(
-          {
-            id: session.user.id,
-            name: session.user.name ?? "",
-            email: session.user.email ?? "",
-            role: session.user.role,
-            userType: session.user.userType,
-          },
-          session.accessToken,
-        );
-      }, 0);
-      return () => clearTimeout(timer);
+    const { setAuth, clearAuth } = useAuthStore.getState();
+
+    if (status === "authenticated" && session && !syncedRef.current) {
+      syncedRef.current = true;
+      setAuth(
+        {
+          id: session.user.id,
+          name: session.user.name ?? "",
+          email: session.user.email ?? "",
+          role: session.user.role,
+          userType: session.user.userType,
+        },
+        session.accessToken,
+      );
     }
 
     if (status === "unauthenticated") {
-      const timer = setTimeout(() => {
-        clearAuth();
-      }, 0);
-      return () => clearTimeout(timer);
+      syncedRef.current = false;
+      clearAuth();
     }
-  }, [session, status, setAuth, clearAuth]);
+  }, [session, status]);
 
   return null;
 }
