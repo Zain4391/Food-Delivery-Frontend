@@ -62,3 +62,13 @@ export interface MenuItemUpdateDTO {
   category?: CATEGORY;
   preparation_time?: number;
 }
+
+export interface UploadRestaurantLogoDTO {
+  id: string;
+  file: File;
+}
+
+export interface UploadRestaurantBannerDTO {
+  id: string;
+  file: File;
+}

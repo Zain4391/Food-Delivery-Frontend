@@ -1,5 +1,9 @@
 import { restaurantService } from "@/services/restaurant.service";
 import { AppException } from "@/types/api.types";
+import {
+  UploadRestaurantBannerDTO,
+  UploadRestaurantLogoDTO,
+} from "@/types/restaurant.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useToggleRestaurantActive() {
@@ -34,8 +38,8 @@ export function useUploadRestaurantLogo() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, file }: { id: string; file: File }) =>
-      restaurantService.uploadLogo(id, file),
+    mutationFn: (payload: UploadRestaurantLogoDTO) =>
+      restaurantService.uploadLogo(payload.id, payload.file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["restaurants"] });
     },
@@ -49,8 +53,8 @@ export function useUploadRestaurantBanner() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, file }: { id: string; file: File }) =>
-      restaurantService.uploadBanner(id, file),
+    mutationFn: (payload: UploadRestaurantBannerDTO) =>
+      restaurantService.uploadBanner(payload.id, payload.file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["restaurants"] });
     },
