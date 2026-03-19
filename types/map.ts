@@ -44,3 +44,11 @@ export const STATUS_VARIANT: Record<
   delivered: "outline",
   cancelled: "destructive",
 };
+
+export const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
+  pending: "confirmed",
+  confirmed: "preparing",
+  preparing: "ready",
+  ready: "picked_up",
+  picked_up: "delivered",
+};

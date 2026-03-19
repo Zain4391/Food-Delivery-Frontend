@@ -2,7 +2,11 @@
 
 import { useState, useCallback } from "react";
 import { useOrders } from "@/hooks/queries/useOrders";
-import { useUpdateOrderStatus, useCancelOrder, useDeleteOrder } from "@/hooks/mutations/useOrderMutations";
+import {
+  useUpdateOrderStatus,
+  useCancelOrder,
+  useDeleteOrder,
+} from "@/hooks/mutations/useOrderMutations";
 import { OrderStatus } from "@/types/order.types";
 import {
   Card,
@@ -36,9 +40,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { NEXT_STATUS, STATUS_VARIANT } from "@/types/map";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 const ALL_STATUSES: OrderStatus[] = [
   "pending",
@@ -49,42 +54,6 @@ const ALL_STATUSES: OrderStatus[] = [
   "delivered",
   "cancelled",
 ];
-
-const STATUS_VARIANT: Record<
-  OrderStatus,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  pending: "secondary",
-  confirmed: "secondary",
-  preparing: "secondary",
-  ready: "default",
-  picked_up: "default",
-  delivered: "outline",
-  cancelled: "destructive",
-};
-
-const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
-  pending: "confirmed",
-  confirmed: "preparing",
-  preparing: "ready",
-  ready: "picked_up",
-  picked_up: "delivered",
-};
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export default function OrdersPage() {
   const [page, setPage] = useState(1);
@@ -99,7 +68,8 @@ export default function OrdersPage() {
     sortOrder,
   });
 
-  const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
+  const { mutate: updateStatus, isPending: isUpdating } =
+    useUpdateOrderStatus();
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
   const { mutate: deleteOrder, isPending: isDeleting } = useDeleteOrder();
 
@@ -121,9 +91,7 @@ export default function OrdersPage() {
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">Orders</h1>
-        <p className="text-sm text-muted-foreground">
-          {total} total orders
-        </p>
+        <p className="text-sm text-muted-foreground">{total} total orders</p>
       </div>
 
       <Card>
@@ -131,11 +99,13 @@ export default function OrdersPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>All Orders</CardTitle>
-              <CardDescription>Manage and track all customer orders.</CardDescription>
+              <CardDescription>
+                Manage and track all customer orders.
+              </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select onValueChange={handleStatusFilter} defaultValue="all">
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -149,7 +119,7 @@ export default function OrdersPage() {
               </Select>
 
               <Select onValueChange={handleSortOrder} defaultValue="DESC">
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-35">
                   <SelectValue placeholder="Sort order" />
                 </SelectTrigger>
                 <SelectContent>
@@ -170,30 +140,46 @@ export default function OrdersPage() {
                 <TableHead className="hidden md:table-cell">Address</TableHead>
                 <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="w-[50px]" />
+                <TableHead className="w-12.5" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-4 w-16 ml-auto" />
+                    </TableCell>
                     <TableCell />
                   </TableRow>
                 ))
               ) : isError ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-destructive">
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-destructive"
+                  >
                     Failed to load orders. Please try again.
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-muted-foreground"
+                  >
                     No orders found.
                   </TableCell>
                 </TableRow>
@@ -213,7 +199,7 @@ export default function OrdersPage() {
                         {order.status.replace("_", " ")}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell max-w-[200px] truncate text-sm text-muted-foreground">
+                    <TableCell className="hidden md:table-cell max-w-50 truncate text-sm text-muted-foreground">
                       {order.delivery_address}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-sm">
@@ -225,7 +211,11 @@ export default function OrdersPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Open menu</span>
                           </Button>
