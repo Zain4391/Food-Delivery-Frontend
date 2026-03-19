@@ -6,7 +6,6 @@ import {
   RegisterDriverFormValues,
 } from "@/schemas/auth.schema";
 import { authService } from "@/services/auth.service";
-import { ROLES } from "@/types/auth.types";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
@@ -29,8 +28,7 @@ export function useRegisterAdmin() {
 
   return useMutation({
     mutationFn: (values: RegisterAdminFormValues) => {
-      const { confirmPassword, ...payload } = values;
-      payload.role = ROLES.ADMIN;
+      const { confirmPassword, role, ...payload } = values;
       return authService.registerAdmin(payload);
     },
     onSuccess: () => {

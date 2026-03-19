@@ -1,13 +1,11 @@
 import { ROLES, VEHICLE_TYPE } from "@/types/auth.types";
 import { z } from "zod";
 
-/* LOGIN SCHEMAS */
 export const loginSchema = z.object({
   email: z.email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
-/* REGISTRATION SCHEMAS */
 export const registerCustomerSchema = z
   .object({
     name: z.string().min(1, "Name is required"),
@@ -23,7 +21,20 @@ export const registerCustomerSchema = z
     path: ["confirmPassword"],
   });
 
-export const registerAdminSchema = registerCustomerSchema;
+export const registerAdminSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    email: z.email("Invalid email type"),
+    password: z.string().min(8, "Password must be of min length 8"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    address: z.string().min(1, "Address is required"),
+    profile_image_url: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    error: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 export const registerDriverSchema = z
   .object({
     name: z.string().min(1, "Name is required"),
@@ -44,7 +55,6 @@ export const registerDriverSchema = z
     path: ["confirmPassword"],
   });
 
-/* Export Types for FORMS */
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterCustomerFormValues = z.infer<typeof registerCustomerSchema>;
 export type RegisterDriverFormValues = z.infer<typeof registerDriverSchema>;
