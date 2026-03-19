@@ -12,7 +12,7 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: (payload: CreateOrderDTO) => orderService.createOrder(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order"] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });
 }
@@ -24,7 +24,7 @@ export function useUpdateOrderStatus() {
     mutationFn: (payload: UpdateOrderStatusDTO) =>
       orderService.updateOrderStatus(payload.id, payload.status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order"] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });
 }
@@ -36,7 +36,18 @@ export function useAssignDriver() {
     mutationFn: (payload: AssignDriverDTO) =>
       orderService.assignDriver(payload.orderId, payload.driverId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order", "driver"] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+  });
+}
+
+export function useCancelOrder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => orderService.cancelOrder(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });
 }

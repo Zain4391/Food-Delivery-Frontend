@@ -22,7 +22,7 @@ export function useCustomerOrders(
   params?: OrderListParams,
 ) {
   return useQuery({
-    queryKey: ["customer", { customerId, params }],
+    queryKey: ["orders", "customer", customerId, params],
     queryFn: () => orderService.getOrdersByCustomer(customerId, params),
     enabled: Boolean(customerId),
   });
@@ -30,7 +30,7 @@ export function useCustomerOrders(
 
 export function useDriverOrders(driverId: string, params?: OrderListParams) {
   return useQuery({
-    queryKey: ["driver", { driverId, params }],
+    queryKey: ["orders", "driver", driverId, params],
     queryFn: () => orderService.getOrdersByDriver(driverId, params),
     enabled: Boolean(driverId),
   });
@@ -41,7 +41,7 @@ export function useRestaurantOrders(
   params?: OrderListParams,
 ) {
   return useQuery({
-    queryKey: ["restaurant", { restaurantId, params }],
+    queryKey: ["orders", "restaurant", restaurantId, params],
     queryFn: () => orderService.getOrdersByRestaurant(restaurantId, params),
     enabled: Boolean(restaurantId),
   });
