@@ -1,4 +1,5 @@
 import { UserType } from "./auth.types";
+import { OrderStatus } from "./order.types";
 
 export const PROVIDER_MAP: Record<UserType, string> = {
   customer: "customer-login",
@@ -29,4 +30,17 @@ export const ROLE_CONFIG: Record<UserType, RoleConfig> = {
   admin: {
     label: "Admin",
   },
+};
+
+export const STATUS_VARIANT: Record<
+  OrderStatus,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
+  pending: "secondary",
+  confirmed: "secondary",
+  preparing: "secondary",
+  ready: "default",
+  picked_up: "default",
+  delivered: "outline",
+  cancelled: "destructive",
 };

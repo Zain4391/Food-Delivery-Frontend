@@ -22,6 +22,8 @@ import { useOrders } from "@/hooks/queries/useOrders";
 import { useCustomers } from "@/hooks/queries/useCustomer";
 import { useDrivers } from "@/hooks/queries/useDriver";
 import { OrderStatus } from "@/types/order.types";
+import { STATUS_VARIANT } from "@/types/map";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 const ACTIVE_STATUSES: OrderStatus[] = [
   "pending",
@@ -30,34 +32,6 @@ const ACTIVE_STATUSES: OrderStatus[] = [
   "ready",
   "picked_up",
 ];
-
-const STATUS_VARIANT: Record<
-  OrderStatus,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  pending: "secondary",
-  confirmed: "secondary",
-  preparing: "secondary",
-  ready: "default",
-  picked_up: "default",
-  delivered: "outline",
-  cancelled: "destructive",
-};
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export default function DashboardPage() {
   const { data: ordersData, isLoading: ordersLoading } = useOrders({
@@ -119,7 +93,9 @@ export default function DashboardPage() {
                 {formatCurrency(totalRevenue)}
               </div>
             )}
-            <p className="text-xs text-muted-foreground">From delivered orders</p>
+            <p className="text-xs text-muted-foreground">
+              From delivered orders
+            </p>
           </CardContent>
         </Card>
 
@@ -157,7 +133,9 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Drivers</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Drivers
+            </CardTitle>
             <Bike className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -178,7 +156,9 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
               <CardTitle>Recent Orders</CardTitle>
-              <CardDescription>Latest 5 orders from your store.</CardDescription>
+              <CardDescription>
+                Latest 5 orders from your store.
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent>
@@ -195,15 +175,26 @@ export default function DashboardPage() {
                 {recentLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-48" /></TableCell>
-                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-48" />
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-4 w-16 ml-auto" />
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : recentOrders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-muted-foreground"
+                    >
                       No orders found.
                     </TableCell>
                   </TableRow>
