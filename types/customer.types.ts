@@ -34,3 +34,18 @@ export interface CustomerListParams {
   sortBy?: "name" | "email" | "created_at";
   sortOrder?: "ASC" | "DESC";
 }
+
+export interface UpdateProfileDTO {
+  id: string;
+  data: UpdateCustomerDTO;
+}
+
+export interface UpdateProfileImageDTO {
+  id: string;
+  file: File;
+}
+
+export interface UpdateProfilePasswordDTO {
+  id: string;
+  data: UpdatePasswordDTO;
+}
