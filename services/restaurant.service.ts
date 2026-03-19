@@ -1,26 +1,12 @@
 import { apiClient } from "@/lib/axios";
-import { Restaurant, MenuItem, RestaurantListParams, CATEGORY } from "@/types/restaurant.types";
+import {
+  Restaurant,
+  MenuItem,
+  RestaurantListParams,
+} from "@/types/restaurant.types";
 import { PaginatedResponse } from "@/types/api.types";
 
-export interface MenuItemCreateDTO {
-  name: string;
-  description?: string;
-  price: number;
-  category: CATEGORY;
-  preparation_time?: number;       // optional — backend has @IsOptional()
-  is_available?: boolean;
-}
-
-export interface MenuItemUpdateDTO {
-  name?: string;
-  description?: string;
-  price?: number;
-  category?: CATEGORY;
-  preparation_time?: number;
-}
-
 export const restaurantService = {
-  // ── Restaurants ────────────────────────────────────────
   getAllRestaurants: (params?: RestaurantListParams) =>
     apiClient.get<PaginatedResponse<Restaurant>>("/restaurant/all", { params }),
 
@@ -36,17 +22,25 @@ export const restaurantService = {
   uploadLogo: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    return apiClient.post<Restaurant>(`/restaurant/upload-logo/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return apiClient.post<Restaurant>(
+      `/restaurant/upload-logo/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
   },
 
   uploadBanner: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    return apiClient.post<Restaurant>(`/restaurant/upload-banner/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return apiClient.post<Restaurant>(
+      `/restaurant/upload-banner/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
   },
 
   // ── Menu Items ─────────────────────────────────────────

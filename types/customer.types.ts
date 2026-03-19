@@ -3,7 +3,7 @@ export interface Customer {
   name: string;
   email: string;
   address: string;
-  profile_img_url?: string;       // fixed: was profile_image_url, backend DTO exposes profile_img_url
+  profile_img_url?: string;
   role: string;
   created_at: string;
   updated_at: string;
@@ -25,4 +25,12 @@ export interface ForgotPasswordDTO {
   email: string;
   newPassword: string;
   confirmNewPassword: string;
+}
+
+export interface CustomerListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: "name" | "email" | "created_at";
+  sortOrder?: "ASC" | "DESC";
 }
