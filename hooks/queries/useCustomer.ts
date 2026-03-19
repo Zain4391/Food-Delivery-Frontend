@@ -4,10 +4,14 @@ import { CustomerListParams } from "@/types/customer.types";
 import { OrderListParams } from "@/types/order.types";
 import { useQuery } from "@tanstack/react-query";
 
-export function useCustomers(params?: CustomerListParams) {
+export function useCustomers(
+  params?: CustomerListParams,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: ["customers", params],
     queryFn: () => adminService.getAllCustomers(params),
+    enabled: options?.enabled ?? true,
   });
 }
 
@@ -26,7 +30,6 @@ export function useCustomerProfile() {
   });
 }
 
-// Use when customer wants to fetch his/her order
 export function useCustomerOrders(id: string, params?: OrderListParams) {
   return useQuery({
     queryKey: ["customers", "orders", id, params],

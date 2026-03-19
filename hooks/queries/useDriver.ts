@@ -8,10 +8,14 @@ import {
 import { OrderListParams } from "@/types/order.types";
 import { useQuery } from "@tanstack/react-query";
 
-export function useDrivers(params?: DriverListParams) {
+export function useDrivers(
+  params?: DriverListParams,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: ["drivers", params],
     queryFn: () => adminService.getAllDrivers(params),
+    enabled: options?.enabled ?? true,
   });
 }
 
