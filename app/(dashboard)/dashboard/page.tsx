@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -61,24 +62,35 @@ function formatDate(dateStr: string) {
 }
 
 export default function DashboardPage() {
+  const [mounted, setMounted] = useState(false);
   const isAdmin = useIsAdmin();
 
-  const { data: ordersData, isLoading: ordersLoading } = useOrders(
-    { limit: 100, sortBy: "order_date", sortOrder: "DESC" },
-  );
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const { data: recentOrdersData, isLoading: recentLoading } = useOrders(
-    { limit: 5, sortBy: "order_date", sortOrder: "DESC" },
-  );
+  const adminEnabled = mounted && isAdmin;
+
+  const { data: ordersData, isLoading: ordersLoading } = useOrders({
+    limit: 100,
+    sortBy: "order_date",
+    sortOrder: "DESC",
+  });
+
+  const { data: recentOrdersData, isLoading: recentLoading } = useOrders({
+    limit: 5,
+    sortBy: "order_date",
+    sortOrder: "DESC",
+  });
 
   const { data: customersData, isLoading: customersLoading } = useCustomers(
     { limit: 1 },
-    { enabled: isAdmin },
+    { enabled: adminEnabled },
   );
 
   const { data: driversData, isLoading: driversLoading } = useDrivers(
     { limit: 100 },
-    { enabled: isAdmin },
+    { enabled: adminEnabled },
   );
 
   const totalRevenue =
@@ -137,7 +149,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {customersLoading ? (
+            {!mounted || customersLoading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
               <div className="text-2xl font-bold">
@@ -154,7 +166,7 @@ export default function DashboardPage() {
             <Bike className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {driversLoading ? (
+            {!mounted || driversLoading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
               <div className="text-2xl font-bold">
@@ -162,7 +174,9 @@ export default function DashboardPage() {
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              {isAdmin ? `${onDeliveryCount} currently on delivery` : "Admin only"}
+              {mounted && isAdmin
+                ? `${onDeliveryCount} currently on delivery`
+                : "Admin only"}
             </p>
           </CardContent>
         </Card>
