@@ -7,7 +7,7 @@ import {
   CustomerListParams,
 } from "@/types/customer.types";
 import { PaginatedResponse } from "@/types/api.types";
-import { Order } from "@/types/order.types";
+import { Order, OrderListParams } from "@/types/order.types";
 
 export const customerService = {
   getProfile: () => apiClient.get<Customer>("/customer/profile"),
@@ -31,7 +31,7 @@ export const customerService = {
   forgotPassword: (data: ForgotPasswordDTO) =>
     apiClient.post<void>("/customer/forgot-password", data),
 
-  getOrders: (id: string, params?: CustomerListParams) =>
+  getOrders: (id: string, params?: OrderListParams) =>
     apiClient.get<PaginatedResponse<Order>>(`/customer/admin/orders/${id}`, {
       params,
     }),

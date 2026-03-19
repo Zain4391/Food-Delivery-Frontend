@@ -1,10 +1,10 @@
 import { customerService } from "@/services/customer.service";
 import {
+  ForgotPasswordDTO,
   UpdateProfileDTO,
   UpdateProfileImageDTO,
   UpdateProfilePasswordDTO,
 } from "@/types/customer.types";
-import { ForgotDriverPasswordDTO } from "@/types/driver.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUpdateProfile() {
@@ -43,13 +43,9 @@ export function useUpdatePassword() {
 }
 
 export function useForgotPassword() {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (payload: ForgotDriverPasswordDTO) =>
+    mutationFn: (payload: ForgotPasswordDTO) =>
       customerService.forgotPassword(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
-    },
+    onSuccess: () => {},
   });
 }
