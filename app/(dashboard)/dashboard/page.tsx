@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -36,14 +35,7 @@ const ACTIVE_STATUSES: OrderStatus[] = [
 ];
 
 export default function DashboardPage() {
-  const [mounted, setMounted] = useState(false);
   const isAdmin = useIsAdmin();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const adminEnabled = mounted && isAdmin;
 
   const { data: ordersData, isLoading: ordersLoading } = useOrders({
     limit: 100,
@@ -59,12 +51,12 @@ export default function DashboardPage() {
 
   const { data: customersData, isLoading: customersLoading } = useCustomers(
     { limit: 1 },
-    { enabled: adminEnabled },
+    { enabled: isAdmin },
   );
 
   const { data: driversData, isLoading: driversLoading } = useDrivers(
     { limit: 100 },
-    { enabled: adminEnabled },
+    { enabled: isAdmin },
   );
 
   const totalRevenue =
@@ -123,7 +115,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {!mounted || customersLoading ? (
+            {customersLoading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
               <div className="text-2xl font-bold">
@@ -140,7 +132,7 @@ export default function DashboardPage() {
             <Bike className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {!mounted || driversLoading ? (
+            {driversLoading ? (
               <Skeleton className="h-8 w-16" />
             ) : (
               <div className="text-2xl font-bold">
@@ -148,9 +140,7 @@ export default function DashboardPage() {
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              {mounted && isAdmin
-                ? `${onDeliveryCount} currently on delivery`
-                : "Admin only"}
+              {isAdmin ? `${onDeliveryCount} currently on delivery` : "Admin only"}
             </p>
           </CardContent>
         </Card>
