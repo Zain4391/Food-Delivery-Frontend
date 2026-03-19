@@ -61,15 +61,15 @@ export default function DashboardPage() {
 
   const totalRevenue =
     ordersData?.data
-      .filter((o) => o.status === "delivered")
+      ?.filter((o) => o.status === "delivered")
       .reduce((sum, o) => sum + Number(o.total_amount), 0) ?? 0;
 
   const activeOrdersCount =
-    ordersData?.data.filter((o) => ACTIVE_STATUSES.includes(o.status)).length ?? 0;
+    ordersData?.data?.filter((o) => ACTIVE_STATUSES.includes(o.status)).length ?? 0;
 
   const totalCustomers = customersData?.total ?? 0;
-  const activeDriversCount = driversData?.data.filter((d) => d.is_available).length ?? 0;
-  const onDeliveryCount = driversData?.data.filter((d) => !d.is_available).length ?? 0;
+  const activeDriversCount = driversData?.data?.filter((d) => d.is_available).length ?? 0;
+  const onDeliveryCount = driversData?.data?.filter((d) => !d.is_available).length ?? 0;
   const recentOrders = recentOrdersData?.data ?? [];
 
   return (
