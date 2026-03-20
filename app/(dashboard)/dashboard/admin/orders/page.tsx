@@ -46,13 +46,8 @@ import { NEXT_STATUS, STATUS_VARIANT } from "@/types/map";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const ALL_STATUSES: OrderStatus[] = [
-  "pending",
-  "confirmed",
-  "preparing",
-  "ready",
-  "picked_up",
-  "delivered",
-  "cancelled",
+  "pending", "confirmed", "preparing", "ready",
+  "picked_up", "delivered", "cancelled",
 ];
 
 export default function AdminOrdersPage() {
@@ -61,21 +56,16 @@ export default function AdminOrdersPage() {
   const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
 
   const { data, isLoading, isError } = useOrders({
-    page,
-    limit: 10,
-    status,
-    sortBy: "order_date",
-    sortOrder,
+    page, limit: 10, status, sortBy: "order_date", sortOrder,
   });
 
-  const { mutate: updateStatus, isPending: isUpdating } =
-    useUpdateOrderStatus();
+  const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
   const { mutate: deleteOrder, isPending: isDeleting } = useDeleteOrder();
 
-  const orders = data?.data ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = Math.ceil(total / 10);
+  const orders = data?.items ?? [];
+  const total = data?.meta.totalItems ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / 10));
 
   const handleStatusFilter = useCallback((value: string) => {
     setStatus(value === "all" ? undefined : (value as OrderStatus));
@@ -99,9 +89,7 @@ export default function AdminOrdersPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>All Orders</CardTitle>
-              <CardDescription>
-                Manage and track all customer orders.
-              </CardDescription>
+              <CardDescription>Manage and track all customer orders.</CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select onValueChange={handleStatusFilter} defaultValue="all">
@@ -117,7 +105,6 @@ export default function AdminOrdersPage() {
                   ))}
                 </SelectContent>
               </Select>
-
               <Select onValueChange={handleSortOrder} defaultValue="DESC">
                 <SelectTrigger className="w-36">
                   <SelectValue placeholder="Sort order" />
@@ -147,39 +134,23 @@ export default function AdminOrdersPage() {
               {isLoading ? (
                 Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell>
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Skeleton className="h-4 w-40" />
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Skeleton className="h-4 w-16 ml-auto" />
-                    </TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                     <TableCell />
                   </TableRow>
                 ))
               ) : isError ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-destructive"
-                  >
+                  <TableCell colSpan={6} className="text-center text-destructive">
                     Failed to load orders. Please try again.
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
                     No orders found.
                   </TableCell>
                 </TableRow>
@@ -187,15 +158,10 @@ export default function AdminOrdersPage() {
                 orders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>
-                      <div className="font-mono text-xs font-medium">
-                        {order.id.slice(0, 8)}...
-                      </div>
+                      <div className="font-mono text-xs font-medium">{order.id.slice(0, 8)}...</div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      <Badge
-                        variant={STATUS_VARIANT[order.status]}
-                        className="capitalize text-xs"
-                      >
+                      <Badge variant={STATUS_VARIANT[order.status]} className="capitalize text-xs">
                         {order.status.replace("_", " ")}
                       </Badge>
                     </TableCell>
@@ -211,11 +177,7 @@ export default function AdminOrdersPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Open menu</span>
                           </Button>
@@ -226,12 +188,7 @@ export default function AdminOrdersPage() {
                           {NEXT_STATUS[order.status] && (
                             <DropdownMenuItem
                               disabled={isUpdating}
-                              onClick={() =>
-                                updateStatus({
-                                  id: order.id,
-                                  status: NEXT_STATUS[order.status]!,
-                                })
-                              }
+                              onClick={() => updateStatus({ id: order.id, status: NEXT_STATUS[order.status]! })}
                             >
                               Move to{" "}
                               <span className="ml-1 capitalize">
@@ -239,16 +196,15 @@ export default function AdminOrdersPage() {
                               </span>
                             </DropdownMenuItem>
                           )}
-                          {order.status !== "cancelled" &&
-                            order.status !== "delivered" && (
-                              <DropdownMenuItem
-                                disabled={isCancelling}
-                                className="text-destructive focus:text-white"
-                                onClick={() => cancelOrder(order.id)}
-                              >
-                                Cancel Order
-                              </DropdownMenuItem>
-                            )}
+                          {order.status !== "cancelled" && order.status !== "delivered" && (
+                            <DropdownMenuItem
+                              disabled={isCancelling}
+                              className="text-destructive focus:text-white"
+                              onClick={() => cancelOrder(order.id)}
+                            >
+                              Cancel Order
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             disabled={isDeleting}
@@ -268,26 +224,12 @@ export default function AdminOrdersPage() {
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-muted-foreground">
-                Page {page} of {totalPages}
-              </p>
+              <p className="text-sm text-muted-foreground">Page {page} of {totalPages}</p>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
+                <Button variant="outline" size="icon" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    setPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={page === totalPages}
-                >
+                <Button variant="outline" size="icon" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

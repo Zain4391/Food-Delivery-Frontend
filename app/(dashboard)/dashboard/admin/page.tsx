@@ -22,12 +22,14 @@ export default function AdminDashboardPage() {
   const { data: customersData, isLoading: customersLoading } = useCustomers({ limit: 1 });
   const { data: driversData, isLoading: driversLoading } = useDrivers({ limit: 100 });
 
-  const totalRevenue = ordersData?.data?.filter((o) => o.status === "delivered").reduce((sum, o) => sum + Number(o.total_amount), 0) ?? 0;
-  const activeOrdersCount = ordersData?.data?.filter((o) => ACTIVE_STATUSES.includes(o.status)).length ?? 0;
+  const allOrders = ordersData?.items ?? [];
+  const totalRevenue = allOrders.filter((o) => o.status === "delivered").reduce((sum, o) => sum + Number(o.total_amount), 0);
+  const activeOrdersCount = allOrders.filter((o) => ACTIVE_STATUSES.includes(o.status)).length;
   const totalCustomers = customersData?.meta.totalItems ?? 0;
-  const activeDriversCount = driversData?.items?.filter((d) => d.is_available).length ?? 0;
-  const onDeliveryCount = driversData?.items?.filter((d) => !d.is_available).length ?? 0;
-  const recentOrders = recentOrdersData?.data ?? [];
+  const allDrivers = driversData?.items ?? [];
+  const activeDriversCount = allDrivers.filter((d) => d.is_available).length;
+  const onDeliveryCount = allDrivers.filter((d) => !d.is_available).length;
+  const recentOrders = recentOrdersData?.items ?? [];
 
   return (
     <>
