@@ -11,24 +11,34 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useUser, useUserRole } from "@/store/auth.store";
-import { signOut, useSession } from "next-auth/react";
+import { useUser, useUserRole, useUserType } from "@/store/auth.store";
+import { signOut } from "next-auth/react";
 import { getInitials, getRoleBadgeVariant } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { MobileSidebar } from "./MobileSidebar";
 import { useUIStore } from "@/store/ui.store";
+import { useProfileImage } from "@/hooks/queries/useProfileImage";
 
 export function Header() {
   const user = useUser();
-  const { data: session } = useSession();
   const role = useUserRole();
+  const userType = useUserType();
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
 
+  // Profile image fetched live from the DB — updates immediately after upload
+  const profileImage = useProfileImage();
   const initials = getInitials(user?.name);
   const displayName = user?.name ?? "My Account";
   const displayEmail = user?.email ?? "";
-  const profileImage = session?.user?.image ?? "";
+
+  // Route the Settings link to the correct role-specific settings page
+  const settingsHref =
+    userType === "admin"
+      ? "/dashboard/admin/settings"
+      : userType === "driver"
+        ? "/dashboard/driver/settings"
+        : "/dashboard/customer/settings";
 
   const handleLogout = () => {
     signOut({ callbackUrl: "/login" });
@@ -38,7 +48,6 @@ export function Header() {
     <>
       <MobileSidebar />
       <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-15 lg:px-6">
-        {/* Mobile menu button — now wired */}
         <Button
           variant="outline"
           size="icon"
@@ -51,7 +60,6 @@ export function Header() {
 
         <div className="flex-1" />
 
-        {/* Avatar Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -74,9 +82,7 @@ export function Header() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium leading-none">
-                    {displayName}
-                  </p>
+                  <p className="text-sm font-medium leading-none">{displayName}</p>
                   {role && (
                     <Badge
                       variant={getRoleBadgeVariant(role)}
@@ -96,7 +102,7 @@ export function Header() {
 
             <DropdownMenuItem asChild>
               <Link
-                href="/dashboard/settings"
+                href={settingsHref}
                 className="flex items-center gap-2 cursor-pointer"
               >
                 <Settings className="h-4 w-4" />

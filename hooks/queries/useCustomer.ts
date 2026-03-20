@@ -2,7 +2,7 @@ import { adminService } from "@/services/admin.service";
 import { customerService } from "@/services/customer.service";
 import { CustomerListParams } from "@/types/customer.types";
 import { OrderListParams } from "@/types/order.types";
-import { useIsHydrated } from "@/store/auth.store";
+import { useIsHydrated, useUserType } from "@/store/auth.store";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCustomers(
@@ -28,10 +28,12 @@ export function useCustomerById(id: string) {
 
 export function useCustomerProfile() {
   const isHydrated = useIsHydrated();
+  const userType = useUserType();
   return useQuery({
     queryKey: ["customers", "profile"],
     queryFn: () => customerService.getProfile(),
-    enabled: isHydrated,
+    // Only fetch when hydrated AND the logged-in user is actually a customer
+    enabled: isHydrated && userType === "customer",
   });
 }
 

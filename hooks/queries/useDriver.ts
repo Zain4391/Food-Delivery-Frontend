@@ -6,7 +6,7 @@ import {
   PendingOrdersDTO,
 } from "@/types/driver.types";
 import { OrderListParams } from "@/types/order.types";
-import { useIsHydrated } from "@/store/auth.store";
+import { useIsHydrated, useUserType } from "@/store/auth.store";
 import { useQuery } from "@tanstack/react-query";
 
 export function useDrivers(
@@ -32,10 +32,12 @@ export function useDriver(id: string) {
 
 export function useDriverProfile() {
   const isHydrated = useIsHydrated();
+  const userType = useUserType();
   return useQuery({
     queryKey: ["drivers", "profile"],
     queryFn: () => driverService.getProfile(),
-    enabled: isHydrated,
+    // Only fetch when hydrated AND the logged-in user is actually a driver
+    enabled: isHydrated && userType === "driver",
   });
 }
 

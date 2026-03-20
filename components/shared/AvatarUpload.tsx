@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 interface AvatarUploadProps {
+  /** The persisted image URL from the API (re-fetched after upload). */
   currentImageUrl?: string | null;
   initials: string;
   onUpload: (file: File) => void;
@@ -22,31 +23,28 @@ export function AvatarUpload({
   className,
 }: AvatarUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Show local preview immediately
-    const url = URL.createObjectURL(file);
-    setPreview(url);
     onUpload(file);
-    // Reset input so the same file can be re-selected
+    // Reset so the same file can be re-selected if needed
     e.target.value = "";
   };
-
-  const displayImage = preview ?? currentImageUrl ?? "";
 
   return (
     <div className={cn("flex flex-col items-center gap-3", className)}>
       <div className="relative">
         <Avatar className="h-20 w-20">
-          <AvatarImage src={displayImage} alt="Profile picture" />
+          {/* Always use the server-persisted URL — no local preview state
+              that gets out of sync with reality on refresh. The parent
+              invalidates the query on upload success so this re-renders
+              with the new URL automatically. */}
+          <AvatarImage src={currentImageUrl ?? ""} alt="Profile picture" />
           <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
             {initials}
           </AvatarFallback>
         </Avatar>
-        {/* Camera overlay button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
