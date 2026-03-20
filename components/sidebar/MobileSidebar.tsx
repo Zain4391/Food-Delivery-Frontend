@@ -21,6 +21,7 @@ const ADMIN_NAV: SideBarItemProps[] = [
   { href: "/dashboard/admin", icon: Home, label: "Overview" },
   { href: "/dashboard/admin/orders", icon: ShoppingBag, label: "Orders" },
   { href: "/dashboard/admin/customers", icon: Users, label: "Customers" },
+  { href: "/dashboard/admin/drivers", icon: Bike, label: "Drivers" },
   { href: "/dashboard/admin/settings", icon: Settings, label: "Settings" },
 ];
 

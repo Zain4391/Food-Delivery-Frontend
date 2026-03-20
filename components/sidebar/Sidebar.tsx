@@ -18,6 +18,7 @@ const ADMIN_NAV: SideBarItemProps[] = [
   { href: "/dashboard/admin", icon: Home, label: "Overview" },
   { href: "/dashboard/admin/orders", icon: ShoppingBag, label: "Orders" },
   { href: "/dashboard/admin/customers", icon: Users, label: "Customers" },
+  { href: "/dashboard/admin/drivers", icon: Bike, label: "Drivers" },
   { href: "/dashboard/admin/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -58,7 +59,6 @@ export function Sidebar() {
           <span>{label}</span>
         </Link>
       </div>
-
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
           {navItems.map((item) => (
