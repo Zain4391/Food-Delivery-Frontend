@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingBag, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -51,12 +46,8 @@ export default function CustomerDashboardPage() {
   const activeCount = orders.filter((o) =>
     ACTIVE_STATUSES.includes(o.status),
   ).length;
-  const deliveredCount = orders.filter(
-    (o) => o.status === "delivered",
-  ).length;
-  const cancelledCount = orders.filter(
-    (o) => o.status === "cancelled",
-  ).length;
+  const deliveredCount = orders.filter((o) => o.status === "delivered").length;
+  const cancelledCount = orders.filter((o) => o.status === "cancelled").length;
   const totalSpent = orders
     .filter((o) => o.status === "delivered")
     .reduce((sum, o) => sum + Number(o.total_amount), 0);
@@ -174,7 +165,7 @@ export default function CustomerDashboardPage() {
                     colSpan={4}
                     className="text-center text-muted-foreground py-8"
                   >
-                    You haven't placed any orders yet.
+                    You have not placed any orders yet.
                   </TableCell>
                 </TableRow>
               ) : (
