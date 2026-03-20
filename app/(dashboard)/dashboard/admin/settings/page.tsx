@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useCustomerProfile } from "@/hooks/queries/useCustomer";
+import { useCustomerById } from "@/hooks/queries/useCustomer";
 import {
   useUpdateProfile,
   useUpdatePassword,
@@ -29,8 +29,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminSettingsPage() {
+  // user.id is available immediately from Zustand (JWT session)
   const user = useUser();
-  const { data: profile, isLoading } = useCustomerProfile();
+
+  // GET /customer/:id — Admin is allowed to call this on their own ID
+  const { data: profile, isLoading } = useCustomerById(user?.id ?? "");
 
   const { mutate: updateProfile, isPending: isSaving } = useUpdateProfile();
   const { mutate: updatePassword, isPending: isChangingPassword } =
@@ -38,7 +41,12 @@ export default function AdminSettingsPage() {
 
   const profileForm = useForm<UpdateCustomerFormValues>({
     resolver: zodResolver(updateCustomerSchema),
-    defaultValues: { name: "", email: "", address: "" },
+    // Pre-fill name + email from Zustand immediately — no loading flicker
+    defaultValues: {
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      address: "",
+    },
   });
 
   const passwordForm = useForm<UpdatePasswordFormValues>({
@@ -50,6 +58,7 @@ export default function AdminSettingsPage() {
     },
   });
 
+  // Once the full profile loads, fill in address (and refresh name/email in case they changed)
   useEffect(() => {
     if (profile) {
       profileForm.reset({
