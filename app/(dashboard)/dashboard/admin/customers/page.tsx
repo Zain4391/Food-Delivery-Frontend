@@ -23,6 +23,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +35,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useCustomers } from "@/hooks/queries/useCustomer";
+import { useDeleteCustomer } from "@/hooks/mutations/useAdminMutations";
 import { formatDate } from "@/lib/utils";
 import { CustomerListParams } from "@/types/customer.types";
 
@@ -53,6 +55,7 @@ export default function AdminCustomersPage() {
   };
 
   const { data, isLoading, isFetching } = useCustomers(params);
+  const { mutate: deleteCustomer, isPending: isDeleting } = useDeleteCustomer();
 
   const customers = data?.items ?? [];
   const total = data?.meta.totalItems ?? 0;
@@ -89,7 +92,6 @@ export default function AdminCustomersPage() {
                 )}
               </CardDescription>
             </div>
-
             <form
               onSubmit={handleSearch}
               className="flex w-full items-center gap-2 sm:w-auto"
@@ -187,11 +189,23 @@ export default function AdminCustomersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(customer.id)}>
+                          <DropdownMenuItem
+                            onClick={() => navigator.clipboard.writeText(customer.id)}
+                          >
                             Copy ID
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(customer.email)}>
+                          <DropdownMenuItem
+                            onClick={() => navigator.clipboard.writeText(customer.email)}
+                          >
                             Copy Email
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            disabled={isDeleting}
+                            className="text-destructive focus:text-white"
+                            onClick={() => deleteCustomer(customer.id)}
+                          >
+                            Delete Customer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
