@@ -14,11 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useCustomerById } from "@/hooks/queries/useCustomer";
+import { useAdminProfile } from "@/hooks/queries/useAdmin";
 import {
-  useUpdateProfile,
-  useUpdatePassword,
-} from "@/hooks/mutations/useCustomerMutations";
+  useUpdateAdminProfile,
+  useUpdateAdminPassword,
+} from "@/hooks/mutations/useAdminMutations";
 import { useUser } from "@/store/auth.store";
 import {
   updateCustomerSchema,
@@ -29,19 +29,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminSettingsPage() {
-  // user.id is available immediately from Zustand (JWT session)
   const user = useUser();
 
-  // GET /customer/:id — Admin is allowed to call this on their own ID
-  const { data: profile, isLoading } = useCustomerById(user?.id ?? "");
+  // GET /customer/admin/profile — admin-guarded, returns current admin's data
+  const { data: profile, isLoading } = useAdminProfile();
 
-  const { mutate: updateProfile, isPending: isSaving } = useUpdateProfile();
-  const { mutate: updatePassword, isPending: isChangingPassword } =
-    useUpdatePassword();
+  const { mutate: updateProfile, isPending: isSaving } = useUpdateAdminProfile();
+  const { mutate: updatePassword, isPending: isChangingPassword } = useUpdateAdminPassword();
 
   const profileForm = useForm<UpdateCustomerFormValues>({
     resolver: zodResolver(updateCustomerSchema),
-    // Pre-fill name + email from Zustand immediately — no loading flicker
     defaultValues: {
       name: user?.name ?? "",
       email: user?.email ?? "",
@@ -58,7 +55,6 @@ export default function AdminSettingsPage() {
     },
   });
 
-  // Once the full profile loads, fill in address (and refresh name/email in case they changed)
   useEffect(() => {
     if (profile) {
       profileForm.reset({
@@ -71,11 +67,13 @@ export default function AdminSettingsPage() {
 
   const onProfileSubmit = (values: UpdateCustomerFormValues) => {
     if (!user?.id) return;
+    // PUT /customer/admin/update/:id
     updateProfile({ id: user.id, data: values });
   };
 
   const onPasswordSubmit = (values: UpdatePasswordFormValues) => {
     if (!user?.id) return;
+    // PUT /customer/admin/update-password/:id
     updatePassword(
       { id: user.id, data: values },
       { onSuccess: () => passwordForm.reset() },
@@ -89,7 +87,6 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid gap-6 max-w-2xl">
-        {/* Profile */}
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
@@ -148,7 +145,6 @@ export default function AdminSettingsPage() {
 
         <Separator />
 
-        {/* Password */}
         <Card>
           <CardHeader>
             <CardTitle>Change Password</CardTitle>
