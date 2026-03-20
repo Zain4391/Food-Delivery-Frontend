@@ -28,11 +28,24 @@ export class AppException extends Error {
   }
 }
 
+// Matches nestjs-typeorm-paginate's Pagination<T> shape
+export interface PaginationMeta {
+  totalItems?: number;
+  itemCount: number;
+  itemsPerPage: number;
+  totalPages?: number;
+  currentPage: number;
+}
+
 export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
+  items: T[];
+  meta: PaginationMeta;
+  links?: {
+    first?: string;
+    previous?: string;
+    next?: string;
+    last?: string;
+  };
 }
 
 export function isAppException(error: unknown): error is AppException {
