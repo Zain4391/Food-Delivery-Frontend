@@ -40,8 +40,8 @@ export default function CustomerDashboardPage() {
     { limit: 5, sortBy: "order_date", sortOrder: "DESC" },
   );
 
-  const orders = data?.data ?? [];
-  const recentOrders = recentData?.data ?? [];
+  const orders = data?.items ?? [];
+  const recentOrders = recentData?.items ?? [];
 
   const activeCount = orders.filter((o) =>
     ACTIVE_STATUSES.includes(o.status),

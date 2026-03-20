@@ -71,8 +71,8 @@ export default function CustomerOrdersPage() {
 
   const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
 
-  const orders = data?.data ?? [];
-  const total = data?.total ?? 0;
+  const orders = data?.items ?? [];
+  const total = data?.items ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / 10));
 
   const handleStatusFilter = useCallback((value: string) => {
@@ -217,7 +217,6 @@ export default function CustomerOrdersPage() {
                                 <MoreHorizontal className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
                               </Button>
-
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
@@ -254,9 +253,7 @@ export default function CustomerOrdersPage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() =>
-                    setPage((p) => Math.min(totalPages, p + 1))
-                  }
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                 >
                   <ChevronRight className="h-4 w-4" />
