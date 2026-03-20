@@ -4,7 +4,6 @@ import {
   UpdateCustomerDTO,
   UpdatePasswordDTO,
   ForgotPasswordDTO,
-  CustomerListParams,
 } from "@/types/customer.types";
 import { PaginatedResponse } from "@/types/api.types";
 import { Order, OrderListParams } from "@/types/order.types";
@@ -31,8 +30,7 @@ export const customerService = {
   forgotPassword: (data: ForgotPasswordDTO) =>
     apiClient.post<void>("/customer/forgot-password", data),
 
+  // Customer or Admin: GET /customer/orders/:id
   getOrders: (id: string, params?: OrderListParams) =>
-    apiClient.get<PaginatedResponse<Order>>(`/customer/admin/orders/${id}`, {
-      params,
-    }),
+    apiClient.get<PaginatedResponse<Order>>(`/customer/orders/${id}`, { params }),
 };
