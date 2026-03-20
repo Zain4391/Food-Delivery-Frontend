@@ -26,6 +26,13 @@ axiosInstance.interceptors.request.use(
       config.headers.set("Authorization", `Bearer ${token}`);
     }
 
+    // File uploads (multipart/form-data) go to Supabase Storage via the backend
+    // and can take much longer than a plain JSON request. Remove the timeout so
+    // they never get cancelled mid-flight.
+    if (config.data instanceof FormData) {
+      config.timeout = 0;
+    }
+
     return config;
   },
   (error: AxiosError) => Promise.reject(error),
