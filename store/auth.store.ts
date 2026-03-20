@@ -9,6 +9,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       accessToken: null,
       isAuthenticated: false,
+      isHydrated: false,
 
       setAuth: (user: AuthUser, accessToken: string) =>
         set({
@@ -24,6 +25,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
         }),
 
+      setHydrated: () => set({ isHydrated: true }),
+
       updateUser: (partial: Partial<AuthUser>) => {
         const current = get().user;
         if (!current) return;
@@ -37,18 +40,21 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
+        // isHydrated is intentionally NOT persisted — it must be
+        // set fresh each session by AsyncBridge after NextAuth resolves
       }),
     },
   ),
 );
 
-// Selectors <=> Hooks for UI updates
+// Selectors
 export const useUser = () => useAuthStore((state) => state.user);
 export const useAccessToken = () => useAuthStore((state) => state.accessToken);
 export const useIsAuthenticated = () =>
   useAuthStore((state) => state.isAuthenticated);
 export const useUserRole = () => useAuthStore((state) => state.user?.role);
 export const useUserType = () => useAuthStore((state) => state.user?.userType);
+export const useIsHydrated = () => useAuthStore((state) => state.isHydrated);
 
 export const useIsCustomer = () =>
   useAuthStore((state) => state.user?.role === ROLES.CUSTOMER);

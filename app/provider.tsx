@@ -1,7 +1,7 @@
 "use client";
 import { SessionProvider, useSession } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useAuthStore } from "@/store/auth.store";
 
 function makeQueryClient() {
@@ -27,17 +27,26 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
+/**
+ * AsyncBridge syncs the NextAuth session into Zustand on every status change.
+ *
+ * Why this matters:
+ * - React Query hooks use useAuthStore.getState().accessToken in the Axios interceptor.
+ * - If the token isn't in Zustand yet when a query fires, the request goes out
+ *   with no Authorization header → 403 from the backend.
+ * - We set isHydrated=true only after the session status is no longer "loading",
+ *   and all query hooks use `enabled: isHydrated` to block until the token is ready.
+ */
 function AsyncBridge() {
   const { data: session, status } = useSession();
-  const syncedRef = useRef(false);
 
   useEffect(() => {
+    // Don't act until NextAuth has resolved the session
     if (status === "loading") return;
 
-    const { setAuth, clearAuth } = useAuthStore.getState();
+    const { setAuth, clearAuth, setHydrated } = useAuthStore.getState();
 
-    if (status === "authenticated" && session && !syncedRef.current) {
-      syncedRef.current = true;
+    if (status === "authenticated" && session?.accessToken) {
       setAuth(
         {
           id: session.user.id,
@@ -51,9 +60,11 @@ function AsyncBridge() {
     }
 
     if (status === "unauthenticated") {
-      syncedRef.current = false;
       clearAuth();
     }
+
+    // Mark hydration complete — queries are now safe to fire
+    setHydrated();
   }, [session, status]);
 
   return null;
