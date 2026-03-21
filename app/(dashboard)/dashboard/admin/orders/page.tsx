@@ -43,21 +43,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
-import { NEXT_STATUS, STATUS_VARIANT } from "@/types/map";
+import { STATUS_VARIANT } from "@/types/map";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const ALL_STATUSES: OrderStatus[] = [
   "pending", "confirmed", "preparing", "ready",
   "picked_up", "delivered", "cancelled",
 ];
-
-// Statuses that advance via PATCH /order/update-status (no event needed)
-const DIRECT_ADVANCE: Partial<Record<OrderStatus, OrderStatus>> = {
-  pending:   "confirmed",
-  confirmed: "preparing",
-  // "preparing" -> "ready" is handled by Mark Ready (fires order.ready event)
-  // "ready" -> "picked_up" and beyond are driver actions
-};
 
 export default function AdminOrdersPage() {
   const [page, setPage] = useState(1);
@@ -99,7 +91,9 @@ export default function AdminOrdersPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>All Orders</CardTitle>
-              <CardDescription>Manage and track all customer orders.</CardDescription>
+              <CardDescription>
+                Manage and track all customer orders.
+              </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select onValueChange={handleStatusFilter} defaultValue="all">
@@ -212,31 +206,33 @@ export default function AdminOrdersPage() {
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
 
-                          {/* Direct status advance: pending→confirmed, confirmed→preparing */}
-                          {DIRECT_ADVANCE[order.status] && (
+                          {/*
+                            Status flow:
+                            pending    → confirmed  : automatic via RabbitMQ (order.placed → order.confirmed)
+                            confirmed  → preparing  : admin manually advances
+                            preparing  → ready      : admin clicks Mark Ready → fires order.ready event
+                                                       → RabbitMQ → DeliveryService auto-assigns driver
+                            ready      → picked_up  : driver action
+                            picked_up  → delivered  : driver action
+                          */}
+
+                          {order.status === "confirmed" && (
                             <DropdownMenuItem
                               disabled={isUpdating}
                               onClick={() =>
-                                updateStatus({
-                                  id: order.id,
-                                  status: DIRECT_ADVANCE[order.status]!,
-                                })
+                                updateStatus({ id: order.id, status: "preparing" })
                               }
                             >
-                              Move to{" "}
-                              <span className="ml-1 capitalize">
-                                {DIRECT_ADVANCE[order.status]!.replace("_", " ")}
-                              </span>
+                              Move to Preparing
                             </DropdownMenuItem>
                           )}
 
-                          {/* Mark Ready — fires order.ready event → RabbitMQ → auto-assigns driver */}
                           {order.status === "preparing" && (
                             <DropdownMenuItem
                               disabled={isMarking}
                               onClick={() => markReady(order.id)}
                             >
-                              ✅ Mark Ready
+                              Mark Ready
                             </DropdownMenuItem>
                           )}
 
