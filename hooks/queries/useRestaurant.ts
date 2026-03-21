@@ -20,3 +20,12 @@ export function useRestaurant(id: string) {
     enabled: isHydrated && Boolean(id),
   });
 }
+
+export function useAvailableMenuItems(restaurantId: string) {
+  const isHydrated = useIsHydrated();
+  return useQuery({
+    queryKey: ["menuItems", restaurantId, "available"],
+    queryFn: () => restaurantService.getAvailableMenuItems(restaurantId),
+    enabled: isHydrated && Boolean(restaurantId),
+  });
+}
