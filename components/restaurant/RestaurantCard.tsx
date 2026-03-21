@@ -13,7 +13,7 @@ interface Props {
 
 export function RestaurantCard({ restaurant }: Props) {
   return (
-    <Link href={`/dashboard/customer/restaurants/${restaurant.id}`}>
+    <Link href={`/customer/restaurants/${restaurant.id}`}>
       <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full">
         {/* Banner */}
         <div className="relative h-36 w-full bg-muted">
