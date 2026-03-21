@@ -1,7 +1,15 @@
 import { orderService } from "@/services/order.service";
-import { OrderListParams } from "@/types/order.types";
+import { OrderListParams, OrderStatus } from "@/types/order.types";
 import { useIsHydrated } from "@/store/auth.store";
 import { useQuery } from "@tanstack/react-query";
+
+const ACTIVE_STATUSES: OrderStatus[] = [
+  "pending",
+  "confirmed",
+  "preparing",
+  "ready",
+  "picked_up",
+];
 
 export function useOrders(params?: OrderListParams) {
   const isHydrated = useIsHydrated();
@@ -30,6 +38,16 @@ export function useCustomerOrders(
     queryKey: ["orders", "customer", customerId, params],
     queryFn: () => orderService.getOrdersByCustomer(customerId, params),
     enabled: isHydrated && Boolean(customerId),
+    // Poll every 8 seconds when there may be active orders in flight.
+    // The select function checks the result and stops polling once all
+    // orders are in a terminal state (delivered / cancelled).
+    refetchInterval: (query) => {
+      const items = (query.state.data as any)?.items ?? [];
+      const hasActive = items.some((o: { status: OrderStatus }) =>
+        ACTIVE_STATUSES.includes(o.status),
+      );
+      return hasActive ? 8000 : false;
+    },
   });
 }
 
