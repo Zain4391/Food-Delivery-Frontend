@@ -25,16 +25,14 @@ export default function RestaurantDetailPage({
 }) {
   const { id } = use(params);
 
-  const { data: restaurantRes, isLoading: restLoading } = useRestaurant(id);
-  const { data: menuRes, isLoading: menuLoading } = useAvailableMenuItems(id);
+  const { data: restaurant, isLoading: restLoading } = useRestaurant(id);
+  const { data: menuItems, isLoading: menuLoading } = useAvailableMenuItems(id);
 
-  // Axios wraps the response body in .data
-  const restaurant = (restaurantRes as any)?.data ?? restaurantRes;
-  const menuItems: MenuItem[] = (menuRes as any)?.data ?? menuRes ?? [];
+  const items: MenuItem[] = (menuItems as MenuItem[]) ?? [];
 
   const groupedByCategory = CATEGORY_ORDER.reduce(
     (acc, cat) => {
-      acc[cat] = menuItems.filter((i) => i.category === cat);
+      acc[cat] = items.filter((i) => i.category === cat);
       return acc;
     },
     {} as Record<CATEGORY, MenuItem[]>,
@@ -132,7 +130,7 @@ export default function RestaurantDetailPage({
               <Skeleton key={i} className="h-24 w-full rounded-lg" />
             ))}
           </div>
-        ) : menuItems.length === 0 ? (
+        ) : items.length === 0 ? (
           <p className="text-sm text-muted-foreground py-8 text-center">
             No available items at this time.
           </p>
