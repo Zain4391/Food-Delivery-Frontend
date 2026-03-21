@@ -7,6 +7,7 @@ import {
   Users,
   Bike,
   ClipboardList,
+  Store,
 } from "lucide-react";
 import Link from "next/link";
 import { SideBarItemProps } from "../shared/props/SideBarItemprops";
@@ -24,6 +25,7 @@ const ADMIN_NAV: SideBarItemProps[] = [
 
 const CUSTOMER_NAV: SideBarItemProps[] = [
   { href: "/dashboard/customer", icon: Home, label: "Overview" },
+  { href: "/dashboard/customer/restaurants", icon: Store, label: "Restaurants" },
   { href: "/dashboard/customer/orders", icon: ClipboardList, label: "My Orders" },
   { href: "/dashboard/customer/settings", icon: Settings, label: "Settings" },
 ];
