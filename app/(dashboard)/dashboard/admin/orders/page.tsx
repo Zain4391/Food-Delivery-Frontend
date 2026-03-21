@@ -7,6 +7,7 @@ import {
   useCancelOrder,
   useDeleteOrder,
 } from "@/hooks/mutations/useOrderMutations";
+import { useMarkOrderReady } from "@/hooks/mutations/useRestaurantMutations";
 import { OrderStatus } from "@/types/order.types";
 import {
   Card,
@@ -50,6 +51,14 @@ const ALL_STATUSES: OrderStatus[] = [
   "picked_up", "delivered", "cancelled",
 ];
 
+// Statuses that advance via PATCH /order/update-status (no event needed)
+const DIRECT_ADVANCE: Partial<Record<OrderStatus, OrderStatus>> = {
+  pending:   "confirmed",
+  confirmed: "preparing",
+  // "preparing" -> "ready" is handled by Mark Ready (fires order.ready event)
+  // "ready" -> "picked_up" and beyond are driver actions
+};
+
 export default function AdminOrdersPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<OrderStatus | undefined>();
@@ -59,12 +68,13 @@ export default function AdminOrdersPage() {
     page, limit: 10, status, sortBy: "order_date", sortOrder,
   });
 
-  const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
-  const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder();
-  const { mutate: deleteOrder, isPending: isDeleting } = useDeleteOrder();
+  const { mutate: updateStatus,  isPending: isUpdating   } = useUpdateOrderStatus();
+  const { mutate: cancelOrder,   isPending: isCancelling } = useCancelOrder();
+  const { mutate: deleteOrder,   isPending: isDeleting   } = useDeleteOrder();
+  const { mutate: markReady,     isPending: isMarking    } = useMarkOrderReady();
 
-  const orders = data?.items ?? [];
-  const total = data?.meta.totalItems ?? 0;
+  const orders     = data?.items ?? [];
+  const total      = data?.meta.totalItems ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / 10));
 
   const handleStatusFilter = useCallback((value: string) => {
@@ -124,7 +134,7 @@ export default function AdminOrdersPage() {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead className="hidden sm:table-cell">Status</TableHead>
-                <TableHead className="hidden md:table-cell">Address</TableHead>
+                <TableHead className="hidden md:table-cell">Driver</TableHead>
                 <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead className="w-12" />
@@ -136,7 +146,7 @@ export default function AdminOrdersPage() {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                     <TableCell />
@@ -158,22 +168,38 @@ export default function AdminOrdersPage() {
                 orders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>
-                      <div className="font-mono text-xs font-medium">{order.id.slice(0, 8)}...</div>
+                      <div className="font-mono text-xs font-medium">
+                        {order.id.slice(0, 8)}...
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate max-w-32">
+                        {order.delivery_address}
+                      </div>
                     </TableCell>
+
                     <TableCell className="hidden sm:table-cell">
-                      <Badge variant={STATUS_VARIANT[order.status]} className="capitalize text-xs">
+                      <Badge
+                        variant={STATUS_VARIANT[order.status]}
+                        className="capitalize text-xs"
+                      >
                         {order.status.replace("_", " ")}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell max-w-48 truncate text-sm text-muted-foreground">
-                      {order.delivery_address}
+
+                    <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+                      {order.driver_id
+                        ? `${order.driver_id.slice(0, 8)}...`
+                        : <span className="italic">Unassigned</span>
+                      }
                     </TableCell>
+
                     <TableCell className="hidden md:table-cell text-sm">
                       {formatDate(order.order_date)}
                     </TableCell>
+
                     <TableCell className="text-right font-medium">
                       {formatCurrency(Number(order.total_amount))}
                     </TableCell>
+
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -185,26 +211,49 @@ export default function AdminOrdersPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          {NEXT_STATUS[order.status] && (
+
+                          {/* Direct status advance: pending→confirmed, confirmed→preparing */}
+                          {DIRECT_ADVANCE[order.status] && (
                             <DropdownMenuItem
                               disabled={isUpdating}
-                              onClick={() => updateStatus({ id: order.id, status: NEXT_STATUS[order.status]! })}
+                              onClick={() =>
+                                updateStatus({
+                                  id: order.id,
+                                  status: DIRECT_ADVANCE[order.status]!,
+                                })
+                              }
                             >
                               Move to{" "}
                               <span className="ml-1 capitalize">
-                                {NEXT_STATUS[order.status]!.replace("_", " ")}
+                                {DIRECT_ADVANCE[order.status]!.replace("_", " ")}
                               </span>
                             </DropdownMenuItem>
                           )}
-                          {order.status !== "cancelled" && order.status !== "delivered" && (
+
+                          {/* Mark Ready — fires order.ready event → RabbitMQ → auto-assigns driver */}
+                          {order.status === "preparing" && (
                             <DropdownMenuItem
-                              disabled={isCancelling}
-                              className="text-destructive focus:text-white"
-                              onClick={() => cancelOrder(order.id)}
+                              disabled={isMarking}
+                              onClick={() => markReady(order.id)}
                             >
-                              Cancel Order
+                              ✅ Mark Ready
                             </DropdownMenuItem>
                           )}
+
+                          {order.status !== "cancelled" &&
+                            order.status !== "delivered" && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  disabled={isCancelling}
+                                  className="text-destructive focus:text-white"
+                                  onClick={() => cancelOrder(order.id)}
+                                >
+                                  Cancel Order
+                                </DropdownMenuItem>
+                              </>
+                            )}
+
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             disabled={isDeleting}
@@ -224,12 +273,24 @@ export default function AdminOrdersPage() {
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-muted-foreground">Page {page} of {totalPages}</p>
+              <p className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </p>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

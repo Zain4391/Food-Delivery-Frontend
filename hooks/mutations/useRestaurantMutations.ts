@@ -8,7 +8,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useToggleRestaurantActive() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => restaurantService.toggleActive(id),
     onSuccess: () => {
@@ -22,7 +21,6 @@ export function useToggleRestaurantActive() {
 
 export function useDeleteRestaurant() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => restaurantService.deleteRestaurant(id),
     onSuccess: () => {
@@ -34,9 +32,22 @@ export function useDeleteRestaurant() {
   });
 }
 
+export function useMarkOrderReady() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => restaurantService.markOrderReady(orderId),
+    onSuccess: () => {
+      // Invalidate orders so the table refetches and shows the new status
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (error: AppException) => {
+      console.error("[useMarkOrderReady]", error.message);
+    },
+  });
+}
+
 export function useUploadRestaurantLogo() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: UploadRestaurantLogoDTO) =>
       restaurantService.uploadLogo(payload.id, payload.file),
@@ -51,7 +62,6 @@ export function useUploadRestaurantLogo() {
 
 export function useUploadRestaurantBanner() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: UploadRestaurantBannerDTO) =>
       restaurantService.uploadBanner(payload.id, payload.file),
@@ -66,7 +76,6 @@ export function useUploadRestaurantBanner() {
 
 export function useToggleMenuItemAvailability() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => restaurantService.toggleMenuItemAvailability(id),
     onSuccess: () => {
@@ -80,7 +89,6 @@ export function useToggleMenuItemAvailability() {
 
 export function useDeleteMenuItem() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => restaurantService.deleteMenuItem(id),
     onSuccess: () => {

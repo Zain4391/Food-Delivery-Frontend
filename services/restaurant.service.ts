@@ -19,15 +19,17 @@ export const restaurantService = {
   deleteRestaurant: (id: string) =>
     apiClient.delete<void>(`/restaurant/delete/${id}`),
 
+  // Triggers order.ready event → RabbitMQ → DeliveryService auto-assigns a driver
+  markOrderReady: (orderId: string) =>
+    apiClient.patch<void>(`/restaurant/mark-ready/${orderId}`),
+
   uploadLogo: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     return apiClient.post<Restaurant>(
       `/restaurant/upload-logo/${id}`,
       formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
+      { headers: { "Content-Type": "multipart/form-data" } },
     );
   },
 
@@ -37,13 +39,11 @@ export const restaurantService = {
     return apiClient.post<Restaurant>(
       `/restaurant/upload-banner/${id}`,
       formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
+      { headers: { "Content-Type": "multipart/form-data" } },
     );
   },
 
-  // ── Menu Items ─────────────────────────────────────────
+  // ── Menu Items ───────────────────────────────────────────────────────
   getMenuItems: (restaurantId: string) =>
     apiClient.get<MenuItem[]>(`/restaurant/${restaurantId}/menu/all`),
 
