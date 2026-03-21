@@ -11,7 +11,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUpdateDriverProfile() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: UpdateDriverProfileDTO) =>
       driverService.updateProfile(payload.id, payload.data),
@@ -26,7 +25,6 @@ export function useUpdateDriverProfile() {
 
 export function useUpdateDriverProfileImage() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: UpdateDriverProfileImgDTO) =>
       driverService.uploadProfileImage(payload.id, payload.file),
@@ -41,7 +39,6 @@ export function useUpdateDriverProfileImage() {
 
 export function useUpdateDriverPassword() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: UpdateDriverProfilePasswordDTO) =>
       driverService.updatePassword(payload.id, payload.data),
@@ -56,11 +53,12 @@ export function useUpdateDriverPassword() {
 
 export function useToggleAvailability() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => driverService.toggleAvailability(id),
     onSuccess: () => {
+      // Invalidate both the list and the profile specifically
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
+      queryClient.invalidateQueries({ queryKey: ["drivers", "profile"] });
     },
     onError: (error: AppException) => {
       console.error("[useToggleAvailability]", error.message);
@@ -70,7 +68,6 @@ export function useToggleAvailability() {
 
 export function useChangeVehicle() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: ChangeVehicleDTO) =>
       driverService.changeVehicle(payload.id, payload.vehicle_type),
@@ -85,7 +82,6 @@ export function useChangeVehicle() {
 
 export function useDeleteDriver() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (id: string) => adminService.deleteDriver(id),
     onSuccess: () => {

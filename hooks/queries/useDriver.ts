@@ -3,6 +3,7 @@ import { driverService } from "@/services/driver.service";
 import {
   DeliveredOrdersDTO,
   DriverListParams,
+  DriverProfile,
   PendingOrdersDTO,
 } from "@/types/driver.types";
 import { OrderListParams } from "@/types/order.types";
@@ -33,11 +34,12 @@ export function useDriver(id: string) {
 export function useDriverProfile() {
   const isHydrated = useIsHydrated();
   const userType = useUserType();
-  return useQuery({
+  return useQuery<DriverProfile>({
     queryKey: ["drivers", "profile"],
-    queryFn: () => driverService.getProfile(),
-    // Only fetch when hydrated AND the logged-in user is actually a driver
+    queryFn: () => driverService.getProfile() as Promise<DriverProfile>,
     enabled: isHydrated && userType === "driver",
+    // Always refetch on mount so is_available is fresh after toggle
+    refetchOnMount: true,
   });
 }
 

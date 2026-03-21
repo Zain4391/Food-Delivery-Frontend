@@ -13,6 +13,19 @@ export interface Driver {
   updated_at: string;
 }
 
+// Shape returned by GET /driver/profile (JWT strategy AuthenticatedUser)
+export interface DriverProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  userType: string;
+  profile_img_url?: string;
+  is_available: boolean;
+  vehicle_type: string;
+  phone: string;
+}
+
 export interface UpdateDriverDTO {
   name?: string;
   email?: string;

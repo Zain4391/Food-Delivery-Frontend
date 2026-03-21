@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/axios";
 import {
   Driver,
+  DriverProfile,
   UpdateDriverDTO,
   UpdateDriverPasswordDTO,
   ForgotDriverPasswordDTO,
@@ -10,7 +11,7 @@ import { PaginatedResponse } from "@/types/api.types";
 import { VEHICLE_TYPE } from "@/types/auth.types";
 
 export const driverService = {
-  getProfile: () => apiClient.get<Driver>("/driver/profile"),
+  getProfile: () => apiClient.get<DriverProfile>("/driver/profile"),
 
   updateProfile: (id: string, data: UpdateDriverDTO) =>
     apiClient.put<Driver>(`/driver/update/${id}`, data),
