@@ -1,8 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingBag, Clock, CheckCircle, XCircle } from "lucide-react";
+import { ShoppingBag, Clock, CheckCircle, XCircle, UtensilsCrossed } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import { useUser } from "@/store/auth.store";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { STATUS_VARIANT } from "@/types/map";
 import { OrderStatus } from "@/types/order.types";
+import Link from "next/link";
 
 const ACTIVE_STATUSES: OrderStatus[] = [
   "pending",
@@ -54,10 +56,16 @@ export default function CustomerDashboardPage() {
 
   return (
     <>
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">
           Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}!
         </h1>
+        <Button asChild>
+          <Link href="/customer/restaurants">
+            <UtensilsCrossed className="h-4 w-4 mr-2" />
+            Order Food
+          </Link>
+        </Button>
       </div>
 
       {/* Stat Cards */}
