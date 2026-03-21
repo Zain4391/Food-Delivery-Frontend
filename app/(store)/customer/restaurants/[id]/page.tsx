@@ -10,6 +10,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CATEGORY, MenuItem } from "@/types/restaurant.types";
+import { PaginatedResponse } from "@/types/api.types";
 
 const CATEGORY_ORDER: CATEGORY[] = [
   CATEGORY.MAIN,
@@ -26,9 +27,12 @@ export default function RestaurantDetailPage({
   const { id } = use(params);
 
   const { data: restaurant, isLoading: restLoading } = useRestaurant(id);
-  const { data: menuItems, isLoading: menuLoading } = useAvailableMenuItems(id);
+  const { data: menuData, isLoading: menuLoading } =
+    useAvailableMenuItems(id);
 
-  const items: MenuItem[] = (menuItems as MenuItem[]) ?? [];
+  // Backend returns Pagination<MenuItemResponseDTO> — unwrap .items
+  const items: MenuItem[] =
+    (menuData as unknown as PaginatedResponse<MenuItem>)?.items ?? [];
 
   const groupedByCategory = CATEGORY_ORDER.reduce(
     (acc, cat) => {
