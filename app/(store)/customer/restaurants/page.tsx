@@ -7,25 +7,30 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, UtensilsCrossed, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Search,
+  UtensilsCrossed,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
 const CUISINE_FILTERS = [
-  { label: "All",     value: "all"     },
-  { label: "🍕 Pizza",  value: "pizza"   },
-  { label: "🍔 Burger", value: "burger"  },
-  { label: "🍣 Sushi",  value: "sushi"   },
-  { label: "🥡 Chinese",value: "chinese" },
-  { label: "🍛 Desi",   value: "desi"    },
-  { label: "🔥 BBQ",    value: "bbq"     },
-  { label: "🍽️ Other",  value: "other"   },
+  { label: "All", value: "all" },
+  { label: "Pizza", value: "pizza" },
+  { label: "Burger", value: "burger" },
+  { label: "Sushi", value: "sushi" },
+  { label: "Chinese", value: "chinese" },
+  { label: "Desi", value: "desi" },
+  { label: "BBQ", value: "bbq" },
+  { label: "Other", value: "other" },
 ];
 
 export default function RestaurantsPage() {
-  const [search, setSearch]   = useState("");
+  const [search, setSearch] = useState("");
   const [cuisine, setCuisine] = useState<string | undefined>(undefined);
-  const [page, setPage]       = useState(1);
+  const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 400);
 
@@ -39,8 +44,8 @@ export default function RestaurantsPage() {
   });
 
   const restaurants = data?.items ?? [];
-  const totalPages  = data?.meta?.totalPages ?? 1;
-  const totalItems  = data?.meta?.totalItems ?? 0;
+  const totalPages = data?.meta?.totalPages ?? 1;
+  const totalItems = data?.meta?.totalItems ?? 0;
 
   const handleCuisine = useCallback((v: string) => {
     setCuisine(v === "all" ? undefined : v);
@@ -74,7 +79,10 @@ export default function RestaurantsPage() {
             placeholder="Search by name, cuisine or address…"
             className="pl-9 h-10"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
           />
         </div>
 
@@ -118,7 +126,11 @@ export default function RestaurantsPage() {
           {(search || cuisine) && (
             <button
               className="text-xs underline underline-offset-2"
-              onClick={() => { setSearch(""); setCuisine(undefined); setPage(1); }}
+              onClick={() => {
+                setSearch("");
+                setCuisine(undefined);
+                setPage(1);
+              }}
             >
               Clear filters
             </button>
