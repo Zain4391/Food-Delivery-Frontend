@@ -3,7 +3,8 @@ import {
   ApiSuccessResponse,
   AppException,
 } from "@/types/api.types";
-import axios, {
+import axios,
+{
   AxiosError,
   AxiosResponse,
   InternalAxiosRequestConfig,
@@ -39,8 +40,25 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse<ApiSuccessResponse<unknown>>) => {
-    return response.data.data as AxiosResponse;
+  (response: AxiosResponse) => {
+    const body = response.data;
+
+    // Some endpoints wrap their payload in { statusCode, success, data, message }.
+    // Others (e.g. GET /restaurant/:id, GET /restaurant/:id/menu/available) return
+    // the payload directly without a wrapper. Handle both cases so React Query
+    // never receives undefined.
+    if (
+      body !== null &&
+      typeof body === "object" &&
+      "success" in body &&
+      body.success === true &&
+      "data" in body
+    ) {
+      return body.data as AxiosResponse;
+    }
+
+    // Raw payload — return as-is
+    return body as AxiosResponse;
   },
   (error: AxiosError<ApiErrorResponse>) => {
     if (error.response?.data?.error) {
