@@ -36,8 +36,9 @@ import {
 } from "lucide-react";
 import { useCustomers } from "@/hooks/queries/useCustomer";
 import { useDeleteCustomer } from "@/hooks/mutations/useAdminMutations";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getInitials } from "@/lib/utils";
 import { CustomerListParams } from "@/types/customer.types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const PAGE_SIZE = 10;
 
@@ -105,9 +106,18 @@ export default function AdminCustomersPage() {
                   onChange={(e) => setSearchInput(e.target.value)}
                 />
               </div>
-              <Button type="submit" variant="default" size="sm">Search</Button>
+              <Button type="submit" variant="default" size="sm">
+                Search
+              </Button>
               {search && (
-                <Button type="button" variant="ghost" size="sm" onClick={handleClearSearch}>Clear</Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearSearch}
+                >
+                  Clear
+                </Button>
               )}
             </form>
           </div>
@@ -138,9 +148,15 @@ export default function AdminCustomersPage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
                     <TableCell />
                   </TableRow>
                 ))
@@ -150,7 +166,9 @@ export default function AdminCustomersPage() {
                     <div className="flex flex-col items-center gap-2 py-10 text-muted-foreground">
                       <UserRound className="h-8 w-8" />
                       <p className="text-sm">
-                        {search ? `No customers found for "${search}"` : "No customers registered yet."}
+                        {search
+                          ? `No customers found for "${search}"`
+                          : "No customers registered yet."}
                       </p>
                     </div>
                   </TableCell>
@@ -160,17 +178,29 @@ export default function AdminCustomersPage() {
                   <TableRow key={customer.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold shrink-0">
-                          {customer.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
-                        </div>
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage
+                            src={customer.profile_img_url}
+                            alt={customer.name}
+                          />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                            {getInitials(customer.name)}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
-                          <div className="font-medium text-sm leading-tight">{customer.name}</div>
-                          <div className="text-xs text-muted-foreground">{customer.email}</div>
+                          <div className="font-medium text-sm leading-tight">
+                            {customer.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {customer.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      <span className="text-sm text-muted-foreground">{customer.address ?? "—"}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {customer.address ?? "—"}
+                      </span>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Badge variant="secondary" className="capitalize text-xs">
@@ -178,24 +208,34 @@ export default function AdminCustomersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      <span className="text-sm text-muted-foreground">{formatDate(customer.created_at)}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {formatDate(customer.created_at)}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(customer.id)}
+                            onClick={() =>
+                              navigator.clipboard.writeText(customer.id)
+                            }
                           >
                             Copy ID
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(customer.email)}
+                            onClick={() =>
+                              navigator.clipboard.writeText(customer.email)
+                            }
                           >
                             Copy Email
                           </DropdownMenuItem>
@@ -219,14 +259,29 @@ export default function AdminCustomersPage() {
           {!isLoading && total > 0 && (
             <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
               <span>
-                Showing {Math.min((page - 1) * PAGE_SIZE + 1, total)}–{Math.min(page * PAGE_SIZE, total)} of {total}
+                Showing {Math.min((page - 1) * PAGE_SIZE + 1, total)}–
+                {Math.min(page * PAGE_SIZE, total)} of {total}
               </span>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="h-8 w-8" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="px-2">{page} / {totalPages}</span>
-                <Button variant="outline" size="icon" className="h-8 w-8" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                <span className="px-2">
+                  {page} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
