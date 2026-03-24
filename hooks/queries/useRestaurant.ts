@@ -21,6 +21,7 @@ export function useRestaurant(id: string) {
   });
 }
 
+// Returns PaginatedResponse<MenuItem> — extract .items in the consuming component
 export function useMenuItems(restaurantId: string) {
   const isHydrated = useIsHydrated();
   return useQuery({
@@ -30,6 +31,7 @@ export function useMenuItems(restaurantId: string) {
   });
 }
 
+// Returns PaginatedResponse<MenuItem> — extract .items in the consuming component
 export function useAvailableMenuItems(restaurantId: string) {
   const isHydrated = useIsHydrated();
   return useQuery({

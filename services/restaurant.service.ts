@@ -63,11 +63,12 @@ export const restaurantService = {
   },
 
   // ── Menu Items ───────────────────────────────────────────────────────
+  // Both /menu/all and /menu/available return nestjs-typeorm-paginate shape: { items, meta, links }
   getMenuItems: (restaurantId: string) =>
-    apiClient.get<MenuItem[]>(`/restaurant/${restaurantId}/menu/all`),
+    apiClient.get<PaginatedResponse<MenuItem>>(`/restaurant/${restaurantId}/menu/all`),
 
   getAvailableMenuItems: (restaurantId: string) =>
-    apiClient.get<MenuItem[]>(`/restaurant/${restaurantId}/menu/available`),
+    apiClient.get<PaginatedResponse<MenuItem>>(`/restaurant/${restaurantId}/menu/available`),
 
   getMenuItemById: (id: string) =>
     apiClient.get<MenuItem>(`/restaurant/menu/item/${id}`),

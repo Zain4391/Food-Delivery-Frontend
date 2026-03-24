@@ -90,13 +90,16 @@ export default function AdminMenuPage({ params }: { params: Promise<{ id: string
   const [imageTargetId, setImageTargetId] = useState<string | null>(null);
 
   const { data: restaurant, isLoading: isLoadingRestaurant } = useRestaurant(restaurantId);
-  const { data: menuItems, isLoading } = useMenuItems(restaurantId);
+  const { data: menuData, isLoading } = useMenuItems(restaurantId);
 
   const { mutate: createItem, isPending: isCreating } = useCreateMenuItem();
   const { mutate: updateItem, isPending: isUpdating } = useUpdateMenuItem();
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteMenuItem();
   const { mutate: toggleAvailability, isPending: isToggling } = useToggleMenuItemAvailability();
-  const { mutate: uploadImage, isPending: isUploadingImage } = useUploadMenuItemImage();
+  const { mutate: uploadImage } = useUploadMenuItemImage();
+
+  // Backend returns nestjs-typeorm-paginate shape: { items, meta, links }
+  const items = menuData?.items ?? [];
 
   const form = useForm<CreateMenuItemFormValues>({
     resolver: zodResolver(createMenuItemSchema),
@@ -153,8 +156,10 @@ export default function AdminMenuPage({ params }: { params: Promise<{ id: string
     setTimeout(() => imageInputRef.current?.click(), 50);
   };
 
-  const items = menuItems ?? [];
   const isPending = isCreating || isUpdating;
+
+  // Restaurant name: getRestaurantById returns the raw DTO (no ApiSuccessResponse wrapper)
+  const restaurantName = (restaurant as unknown as { name?: string })?.name ?? "Menu";
 
   return (
     <>
@@ -166,7 +171,7 @@ export default function AdminMenuPage({ params }: { params: Promise<{ id: string
         </Button>
         <div>
           <h1 className="text-lg font-semibold md:text-2xl">
-            {isLoadingRestaurant ? <Skeleton className="h-6 w-40" /> : restaurant?.data?.name ?? "Menu"}
+            {isLoadingRestaurant ? <Skeleton className="h-6 w-40" /> : restaurantName}
           </h1>
           <p className="text-sm text-muted-foreground">Menu Management</p>
         </div>
