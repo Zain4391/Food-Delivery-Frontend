@@ -6,17 +6,17 @@ A multi-role food delivery web application built with Next.js, supporting Custom
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 15 (App Router, no `src/`) |
-| Language | TypeScript 5 (strict) |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Auth | NextAuth.js v4 (JWT, 3 credential providers) |
-| Client State | Zustand v5 (localStorage persisted) |
-| Server State | TanStack React Query v5 |
-| HTTP | Axios v1 (request/response interceptors) |
-| Forms | React Hook Form v7 + Zod v4 |
-| Icons | Lucide React |
+| Layer        | Technology                               |
+| ------------ | ---------------------------------------- |
+| Framework    | Next.js 16 (App Router, no `src/`)       |
+| Language     | TypeScript 5 (strict)                    |
+| Styling      | Tailwind CSS v4 + shadcn/ui              |
+| Auth         | NextAuth.js v5 (beta)                    |
+| Client State | Zustand v5 (localStorage persisted)      |
+| Server State | TanStack React Query v5                  |
+| HTTP         | Axios v1 (request/response interceptors) |
+| Forms        | React Hook Form v7 + Zod v4              |
+| Icons        | Lucide React                             |
 
 ---
 
@@ -48,12 +48,12 @@ NEXTAUTH_URL=http://localhost:4200
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Development server (port 4200) |
-| `npm run build` | Production build |
-| `npm run start` | Production server |
-| `npm run lint` | ESLint |
+| Command         | Description                    |
+| --------------- | ------------------------------ |
+| `npm run dev`   | Development server (port 4200) |
+| `npm run build` | Production build               |
+| `npm run start` | Production server              |
+| `npm run lint`  | ESLint                         |
 
 ---
 
@@ -70,9 +70,11 @@ food-delivery-frontend/
 │   │       ├── admin/                 # Admin pages (overview, orders, customers, drivers, settings)
 │   │       ├── customer/              # Customer pages (overview, orders, settings)
 │   │       └── driver/                # Driver pages (overview, settings)
-│   ├── api/auth/[...nextauth]/         # NextAuth catch-all route
+│   ├── (legal)/                        # Public legal pages (terms, privacy)
+│   ├── (store)/                        # Public store/menu exploration (customer view)
+│   ├── api/auth/[...nextauth]/         # NextAuth route handler
 │   ├── layout.tsx
-│   ├── page.tsx
+│   ├── page.tsx                        # Global landing page with CTAs
 │   └── provider.tsx                    # SessionProvider + QueryClient + AsyncBridge
 ├── components/
 │   ├── ui/                             # shadcn/ui primitives
@@ -112,28 +114,42 @@ food-delivery-frontend/
 
 ---
 
-## Completed Dashboard Pages
+## Completed Pages
+
+### Public
+
+| Route                | Description                                                           |
+| -------------------- | --------------------------------------------------------------------- |
+| `/`                  | Landing page: Hero, How it Works, Value props, Customer & Driver CTAs |
+| `/login`             | Universal login page with role tab switching                          |
+| `/register/customer` | Customer sign-up flow                                                 |
+| `/register/driver`   | Driver sign-up flow                                                   |
+| `/terms`             | Terms of Service document                                             |
+| `/privacy`           | Privacy Policy document                                               |
 
 ### Admin
-| Route | Description |
-|-------|-------------|
-| `/dashboard/admin` | Overview: revenue, active orders, customer count, driver availability |
-| `/dashboard/admin/orders` | All orders with status filter, advance/cancel/delete actions |
-| `/dashboard/admin/customers` | All customers with search, pagination, delete |
-| `/dashboard/admin/drivers` | All drivers with search, pagination, delete |
-| `/dashboard/admin/settings` | Profile picture upload, profile update, password change |
+
+| Route                        | Description                                                           |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `/dashboard/admin`           | Overview: revenue, active orders, customer count, driver availability |
+| `/dashboard/admin/orders`    | All orders with status filter, advance/cancel/delete actions          |
+| `/dashboard/admin/customers` | All customers with search, pagination, delete                         |
+| `/dashboard/admin/drivers`   | All drivers with search, pagination, delete                           |
+| `/dashboard/admin/settings`  | Profile picture upload, profile update, password change               |
 
 ### Customer
-| Route | Description |
-|-------|-------------|
-| `/dashboard/customer` | Overview: total/active/delivered/cancelled order stats |
-| `/dashboard/customer/orders` | Order history with status filter, cancel action |
+
+| Route                          | Description                                             |
+| ------------------------------ | ------------------------------------------------------- |
+| `/dashboard/customer`          | Overview: total/active/delivered/cancelled order stats  |
+| `/dashboard/customer/orders`   | Order history with status filter, cancel action         |
 | `/dashboard/customer/settings` | Profile picture upload, profile update, password change |
 
 ### Driver
-| Route | Description |
-|-------|-------------|
-| `/dashboard/driver` | Overview: delivery stats, availability toggle |
+
+| Route                        | Description                                                           |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `/dashboard/driver`          | Overview: delivery stats, availability toggle                         |
 | `/dashboard/driver/settings` | Profile picture upload, profile update, vehicle type, password change |
 
 ---
@@ -150,7 +166,7 @@ export function useOrders(params?: OrderListParams) {
   return useQuery({
     queryKey: ["orders", params],
     queryFn: () => orderService.getAllOrders(params),
-    enabled: isHydrated,  // ← blocks until token is ready
+    enabled: isHydrated, // ← blocks until token is ready
   });
 }
 ```
@@ -182,47 +198,51 @@ The backend uses `nestjs-typeorm-paginate` which returns `{ items, meta, links }
 ## Services
 
 ### `admin.service.ts`
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `getAllCustomers` | `GET /customer/all` | Paginated customer list |
-| `getCustomerById` | `GET /customer/:id` | Single customer |
-| `deleteCustomer` | `DELETE /customer/delete/:id` | Delete customer |
-| `getProfile` | `GET /customer/admin/profile` | Admin own profile |
-| `updateProfile` | `PUT /customer/admin/update/:id` | Update admin profile |
-| `updatePassword` | `PUT /customer/admin/update-password/:id` | Change admin password |
-| `uploadProfileImage` | `POST /customer/admin/upload-profile-image/:id` | Upload admin picture |
-| `getAllDrivers` | `GET /driver/all` | Paginated driver list |
-| `getDriverById` | `GET /driver/:id` | Single driver |
-| `deleteDriver` | `DELETE /driver/delete/:id` | Delete driver |
+
+| Method               | Endpoint                                        | Description             |
+| -------------------- | ----------------------------------------------- | ----------------------- |
+| `getAllCustomers`    | `GET /customer/all`                             | Paginated customer list |
+| `getCustomerById`    | `GET /customer/:id`                             | Single customer         |
+| `deleteCustomer`     | `DELETE /customer/delete/:id`                   | Delete customer         |
+| `getProfile`         | `GET /customer/admin/profile`                   | Admin own profile       |
+| `updateProfile`      | `PUT /customer/admin/update/:id`                | Update admin profile    |
+| `updatePassword`     | `PUT /customer/admin/update-password/:id`       | Change admin password   |
+| `uploadProfileImage` | `POST /customer/admin/upload-profile-image/:id` | Upload admin picture    |
+| `getAllDrivers`      | `GET /driver/all`                               | Paginated driver list   |
+| `getDriverById`      | `GET /driver/:id`                               | Single driver           |
+| `deleteDriver`       | `DELETE /driver/delete/:id`                     | Delete driver           |
 
 ### `customer.service.ts`
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `getProfile` | `GET /customer/profile` | Own profile |
-| `updateProfile` | `PUT /customer/update/:id` | Update profile |
-| `updatePassword` | `PUT /customer/update-password/:id` | Change password |
-| `uploadProfileImage` | `POST /customer/upload-profile-image/:id` | Upload picture |
-| `getOrders` | `GET /customer/orders/:id` | Own orders (paginated) |
+
+| Method               | Endpoint                                  | Description            |
+| -------------------- | ----------------------------------------- | ---------------------- |
+| `getProfile`         | `GET /customer/profile`                   | Own profile            |
+| `updateProfile`      | `PUT /customer/update/:id`                | Update profile         |
+| `updatePassword`     | `PUT /customer/update-password/:id`       | Change password        |
+| `uploadProfileImage` | `POST /customer/upload-profile-image/:id` | Upload picture         |
+| `getOrders`          | `GET /customer/orders/:id`                | Own orders (paginated) |
 
 ### `driver.service.ts`
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `getProfile` | `GET /driver/profile` | Own profile |
-| `updateProfile` | `PUT /driver/update/:id` | Update profile |
-| `updatePassword` | `PUT /driver/update-password/:id` | Change password |
-| `uploadProfileImage` | `POST /driver/upload-profile-image/:id` | Upload picture |
+
+| Method               | Endpoint                                | Description         |
+| -------------------- | --------------------------------------- | ------------------- |
+| `getProfile`         | `GET /driver/profile`                   | Own profile         |
+| `updateProfile`      | `PUT /driver/update/:id`                | Update profile      |
+| `updatePassword`     | `PUT /driver/update-password/:id`       | Change password     |
+| `uploadProfileImage` | `POST /driver/upload-profile-image/:id` | Upload picture      |
 | `toggleAvailability` | `PATCH /driver/toggle-availability/:id` | Toggle availability |
-| `getAllOrders` | `GET /driver/orders/all/:id` | All assigned orders |
+| `getAllOrders`       | `GET /driver/orders/all/:id`            | All assigned orders |
 
 ### `order.service.ts`
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `getAllOrders` | `GET /order/all` | Admin: all orders |
-| `getOrdersByCustomer` | `GET /order/customer/:id` | Customer/Admin: by customer |
-| `getOrdersByDriver` | `GET /order/driver/:id` | Driver/Admin: by driver |
-| `updateOrderStatus` | `PATCH /order/update-status/:id` | Admin: advance status |
-| `cancelOrder` | `PATCH /order/cancel/:id` | Customer: cancel |
-| `deleteOrder` | `DELETE /order/delete/:id` | Admin: delete |
+
+| Method                | Endpoint                         | Description                 |
+| --------------------- | -------------------------------- | --------------------------- |
+| `getAllOrders`        | `GET /order/all`                 | Admin: all orders           |
+| `getOrdersByCustomer` | `GET /order/customer/:id`        | Customer/Admin: by customer |
+| `getOrdersByDriver`   | `GET /order/driver/:id`          | Driver/Admin: by driver     |
+| `updateOrderStatus`   | `PATCH /order/update-status/:id` | Admin: advance status       |
+| `cancelOrder`         | `PATCH /order/cancel/:id`        | Customer: cancel            |
+| `deleteOrder`         | `DELETE /order/delete/:id`       | Admin: delete               |
 
 ---
 
@@ -232,11 +252,11 @@ Three credential providers in `lib/auth.ts`: `customer-login`, `driver-login`, `
 
 ### Redirect after login
 
-| Role | Redirects to |
-|------|-------------|
+| Role     | Redirects to          |
+| -------- | --------------------- |
 | customer | `/dashboard/customer` |
-| driver | `/dashboard/driver` |
-| admin | `/dashboard/admin` |
+| driver   | `/dashboard/driver`   |
+| admin    | `/dashboard/admin`    |
 
 `/dashboard/page.tsx` acts as a redirect hub — reads `userType` from Zustand and immediately `router.replace()`s to the correct path.
 
@@ -244,11 +264,11 @@ Three credential providers in `lib/auth.ts`: `customer-login`, `driver-login`, `
 
 ## State Management
 
-| Store | Persisted | Contents |
-|-------|-----------|----------|
-| `auth.store` | Yes | `user`, `accessToken`, `isAuthenticated`, `isHydrated` |
-| `cart.store` | Yes | Cart items, restaurantId, totals |
-| `ui.store` | No | `isSidebarOpen`, `activeModal`, `isLoading` |
+| Store        | Persisted | Contents                                               |
+| ------------ | --------- | ------------------------------------------------------ |
+| `auth.store` | Yes       | `user`, `accessToken`, `isAuthenticated`, `isHydrated` |
+| `cart.store` | Yes       | Cart items, restaurantId, totals                       |
+| `ui.store`   | No        | `isSidebarOpen`, `activeModal`, `isLoading`            |
 
 ---
 
@@ -269,6 +289,7 @@ Three credential providers in `lib/auth.ts`: `customer-login`, `driver-login`, `
 ### Bug 2 — Wrong backend endpoint URLs in service files
 
 **Problem:** Multiple service methods used URLs that didn't exist:
+
 - `order.service.ts`: `/order/admin/customer/:id`, `/order/admin/driver/:id`, `/order/admin/:id`
 - `customer.service.ts`: `/customer/admin/orders/:id`
 
