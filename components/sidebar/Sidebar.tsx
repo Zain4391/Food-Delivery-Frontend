@@ -7,6 +7,7 @@ import {
   Users,
   Bike,
   ClipboardList,
+  UtensilsCrossed,
 } from "lucide-react";
 import Link from "next/link";
 import { SideBarItemProps } from "../shared/props/SideBarItemprops";
@@ -17,6 +18,7 @@ import { ROLES } from "@/types/auth.types";
 const ADMIN_NAV: SideBarItemProps[] = [
   { href: "/dashboard/admin", icon: Home, label: "Overview" },
   { href: "/dashboard/admin/orders", icon: ShoppingBag, label: "Orders" },
+  { href: "/dashboard/admin/restaurants", icon: UtensilsCrossed, label: "Restaurants" },
   { href: "/dashboard/admin/customers", icon: Users, label: "Customers" },
   { href: "/dashboard/admin/drivers", icon: Bike, label: "Drivers" },
   { href: "/dashboard/admin/settings", icon: Settings, label: "Settings" },

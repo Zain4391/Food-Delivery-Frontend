@@ -21,6 +21,15 @@ export function useRestaurant(id: string) {
   });
 }
 
+export function useMenuItems(restaurantId: string) {
+  const isHydrated = useIsHydrated();
+  return useQuery({
+    queryKey: ["menuItems", restaurantId],
+    queryFn: () => restaurantService.getMenuItems(restaurantId),
+    enabled: isHydrated && Boolean(restaurantId),
+  });
+}
+
 export function useAvailableMenuItems(restaurantId: string) {
   const isHydrated = useIsHydrated();
   return useQuery({
