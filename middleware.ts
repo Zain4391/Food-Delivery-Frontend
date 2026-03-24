@@ -4,17 +4,18 @@ import { getToken } from "next-auth/jwt";
 import { UserType } from "@/types/auth.types";
 
 const PROTECTED_ROUTES: Record<UserType, string> = {
-  customer: "/customer",
-  driver: "/driver",
-  admin: "/admin",
+  customer: "/dashboard/customer",
+  driver: "/dashboard/driver",
+  admin: "/dashboard/admin",
 };
 
 const AUTH_ROUTES = ["/login", "/register"];
 
+// Correct routes matching the actual Next.js app structure
 const DASHBOARD_ROUTES: Record<UserType, string> = {
-  customer: "/customer/dashboard",
-  driver: "/driver/dashboard",
-  admin: "/admin/dashboard",
+  customer: "/dashboard/customer",
+  driver: "/dashboard/driver",
+  admin: "/dashboard/admin",
 };
 
 function isAuthRoute(pathname: string): boolean {
